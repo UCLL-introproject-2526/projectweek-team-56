@@ -1,0 +1,17 @@
+# Python generated files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# VS Code settings
+.vscode/
+
+# Virtual Environment
+env/
+venv/
+.env
+
+# System files
+.DS_Store
+Thumbs.db
