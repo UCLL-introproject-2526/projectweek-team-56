@@ -1,6 +1,7 @@
+import pygame
+
 def main ():
-    import pygame
-    def create_main_surface ():
+    def create_main_surface():
         while 1==1 : 
             # Initialize Pygame
             pygame.init()
@@ -10,3 +11,6 @@ def main ():
 
             # Create window with given size
             pygame.display.set_mode(screen_size) 
+
+    create_main_surface ()
+main()
