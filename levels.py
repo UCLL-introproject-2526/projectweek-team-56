@@ -34,6 +34,7 @@ def create_level(level_number):
     elif level_number == 2:
         platforms.add(Platform(0, SCREEN_HEIGHT - 40, 200, 40, GROUND_BROWN))
         platforms.add(Platform(250, 450, 150, 20, move_x=100, speed=2))
+        
         enemies.add(Enemy(250, 420, 120))
         platforms.add(Platform(600, 350, 150, 20, move_x=200, speed=3))
         enemies.add(Enemy(600, 320, 120))
