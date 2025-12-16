@@ -10,11 +10,25 @@ def main():
     pygame.display.set_caption("Merging Mario - Modular System")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("arial", 36)
+    background_img = None
+    if 'BACKGROUND_IMAGE' in globals():
+        try:
+            background_img = pygame.image.load(BACKGROUND_IMAGE).convert()
+            background_img = pygame.transform.scale(background_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        except Exception:
+            background_img = None
 
     current_level = 1
     player = Player(50, SCREEN_HEIGHT - 150)
-    platforms, enemies, items, goal = create_level(current_level)
-    
+    platforms, enemies, items, goal, bg_file = create_level(current_level)
+    background_img = None
+    if bg_file:
+        try:
+            background_img = pygame.image.load(bg_file).convert()
+            background_img = pygame.transform.scale(background_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+        except Exception:
+            background_img = None
+
     camera_x = 0
     game_state = "PLAYING"
 
@@ -28,15 +42,30 @@ def main():
                 if event.key == pygame.K_r:
                     if game_state == "GAME_OVER":
                         player = Player(50, SCREEN_HEIGHT - 150)
-                        platforms, enemies, items, goal = create_level(current_level)
+                        platforms, enemies, items, goal, bg_file = create_level(current_level)
                         camera_x = 0
+                        # reload background for this level
+                        background_img = None
+                        if bg_file:
+                            try:
+                                background_img = pygame.image.load(bg_file).convert()
+                                background_img = pygame.transform.scale(background_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+                            except Exception:
+                                background_img = None
                         game_state = "PLAYING"
                     elif game_state == "LEVEL_COMPLETE":
                         current_level += 1
                         if current_level > 4: current_level = 1
                         player = Player(50, SCREEN_HEIGHT - 150)
-                        platforms, enemies, items, goal = create_level(current_level)
+                        platforms, enemies, items, goal, bg_file = create_level(current_level)
                         camera_x = 0
+                        background_img = None
+                        if bg_file:
+                            try:
+                                background_img = pygame.image.load(bg_file).convert()
+                                background_img = pygame.transform.scale(background_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+                            except Exception:
+                                background_img = None
                         game_state = "PLAYING"
 
         if game_state == "PLAYING":
@@ -71,7 +100,10 @@ def main():
             if not player.is_alive:
                 game_state = "GAME_OVER"
 
-        screen.fill(SKY_BLUE)
+        if background_img:
+            screen.blit(background_img, (0, 0))
+        else:
+            screen.fill(SKY_BLUE)
         for p in platforms: p.draw(screen, camera_x)
         for i in items: i.draw(screen, camera_x)
         for e in enemies: e.draw(screen, camera_x)

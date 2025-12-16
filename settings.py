@@ -19,3 +19,11 @@ FLAG_GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 ITEM_BLUE = (0, 0, 255)
 ITEM_GOLD = (255, 215, 0)
+BACKGROUND_IMAGE = "assets/coolbg.jpg"
+LEVEL_BACKGROUNDS = {
+	1: "assets/bg1.jpg",
+	2: "assets/bg2.jpg",
+	3: "assets/bg3.jpg",
+	4: "assets/bg4.jpg",
+	5: "assets/bg5.jpg",
+}

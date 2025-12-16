@@ -10,6 +10,7 @@ def create_level(level_number):
     enemies = pygame.sprite.Group()
     items = pygame.sprite.Group()
     goal = None
+    background = None
     
     if level_number == 1:
         platforms.add(Platform(0, SCREEN_HEIGHT - 40, 800, 40, GROUND_BROWN))
@@ -59,4 +60,9 @@ def create_level(level_number):
         items.add(Item(200, 530, "speed"))
         goal = Goal(2800, SCREEN_HEIGHT - 40)
 
-    return platforms, enemies, items, goal
+    try:
+        background = LEVEL_BACKGROUNDS.get(level_number)
+    except Exception:
+        background = None
+
+    return platforms, enemies, items, goal, background
