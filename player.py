@@ -1,6 +1,9 @@
 import pygame
 from settings import *
 
+# Slightly darker blue for visibility against light backgrounds
+DARK_BLUE = (0, 40, 180)
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -76,4 +79,22 @@ class Player(pygame.sprite.Sprite):
                 self.image.fill(ITEM_GOLD)
 
     def draw(self, surface, camera_x):
-        surface.blit(self.image, (self.rect.x - camera_x, self.rect.y))
+        draw_x = self.rect.x - camera_x
+        draw_y = self.rect.y
+        # Strong layered blue glow for speed boost (use darker tint for contrast)
+        if getattr(self, 'speed_boost', 0) > 0:
+            w, h = self.rect.size
+            layers = [ (w+44, h+44, 80), (w+30, h+30, 140), (w+18, h+18, 220) ]
+            for sw, sh, alpha in layers:
+                glow = pygame.Surface((sw, sh), pygame.SRCALPHA)
+                pygame.draw.ellipse(glow, (*DARK_BLUE, alpha), glow.get_rect())
+                surface.blit(glow, (draw_x - (sw-w)//2, draw_y - (sh-h)//2), special_flags=pygame.BLEND_ADD)
+        # Strong layered gold glow for jump boost
+        if getattr(self, 'jump_boost', 0) != 0:
+            w, h = self.rect.size
+            layers2 = [ (w+50, h+50, 70), (w+34, h+34, 130), (w+20, h+20, 210) ]
+            for sw, sh, alpha in layers2:
+                glow2 = pygame.Surface((sw, sh), pygame.SRCALPHA)
+                pygame.draw.ellipse(glow2, (*ITEM_GOLD, alpha), glow2.get_rect())
+                surface.blit(glow2, (draw_x - (sw-w)//2, draw_y - (sh-h)//2), special_flags=pygame.BLEND_ADD)
+        surface.blit(self.image, (draw_x, draw_y))
