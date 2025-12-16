@@ -11,7 +11,6 @@ def get_level_data():
     platforms.add(Platform(500, 350, 50, 250)) 
     platforms.add(Platform(1200, 250, 50, 350))
     
-    # Helper Moving Platform
     platforms.add(Platform(700, 200, 100, 20, move_x=300, speed=4))
     
     enemies.add(Enemy(600, 530, 100))

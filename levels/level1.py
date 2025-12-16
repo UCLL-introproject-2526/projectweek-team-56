@@ -7,11 +7,11 @@ def get_level_data():
     enemies = pygame.sprite.Group()
     items = pygame.sprite.Group()
     
-    # Level 1: "The Ambush"
+   
     platforms.add(Platform(0, SCREEN_HEIGHT - 40, 800, 40, GROUND_BROWN))
     platforms.add(Platform(900, SCREEN_HEIGHT - 40, 1000, 40, GROUND_BROWN))
     
-    # Moving Platforms
+   
     platforms.add(Platform(200, 450, 100, 20, move_x=100))
     platforms.add(Platform(500, 350, 100, 20, move_x=150))
     
