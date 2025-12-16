@@ -4,8 +4,15 @@ from settings import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.Surface((30, 40))
-        self.image.fill(BRICK_RED)
+        try:
+            img = pygame.image.load("assets/player.jpg")
+            img = pygame.transform.scale(img, (30, 40))
+            self.image = img.convert_alpha()
+            self.has_image = True
+        except Exception:
+            self.image = pygame.Surface((30, 40))
+            self.image.fill(BRICK_RED)
+            self.has_image = False
         self.rect = self.image.get_rect(topleft=(x, y))
         self.velocity_y = 0
         self.on_ground = False
@@ -61,10 +68,12 @@ class Player(pygame.sprite.Sprite):
     def merge_with_item(self, item_type):
         if item_type == "speed":
             self.speed_boost = 5
-            self.image.fill(ITEM_BLUE)
+            if not getattr(self, 'has_image', False):
+                self.image.fill(ITEM_BLUE)
         elif item_type == "jump":
             self.jump_boost = -5
-            self.image.fill(ITEM_GOLD)
+            if not getattr(self, 'has_image', False):
+                self.image.fill(ITEM_GOLD)
 
     def draw(self, surface, camera_x):
         surface.blit(self.image, (self.rect.x - camera_x, self.rect.y))
