@@ -1,3 +1,14 @@
+SKY_BLUE = (135, 206, 235)
+BRICK_RED = (200, 50, 50)   # Mario Color
+GROUND_BROWN = (100, 50, 20)
+PLATFORM_GRAY = (150, 150, 150)
+MOVING_PLATFORM_COLOR = (100, 100, 180)
+ENEMY_PURPLE = (128, 0, 128)
+FLAG_GREEN = (0, 255, 0)
+WHITE = (255, 255, 255)
+ITEM_BLUE = (0, 0, 255)
+ITEM_GOLD = (255, 215, 0)
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -70,8 +81,6 @@ class Player(pygame.sprite.Sprite):
     def draw(self, surface, camera_x):
         surface.blit(self.image, (self.rect.x - camera_x, self.rect.y))
 
-MOVING_PLATFORM_COLOR = (100, 100, 180)
-PLATFORM_GRAY = (150, 150, 150)
 
 
 class Platform(pygame.sprite.Sprite):
