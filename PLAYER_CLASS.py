@@ -10,7 +10,6 @@ class Player(pygame.sprite.Sprite):
         self.speed_boost = 0
         self.jump_boost = 0
 
-        # NEW: Remember which platform we are standing on
         self.current_platform = None
 
     def update(self, keys, platforms):
@@ -19,30 +18,23 @@ class Player(pygame.sprite.Sprite):
 
         current_speed = PLAYER_SPEED + self.speed_boost
         current_jump = JUMP_STRENGTH + self.jump_boost
-
-        # 1. Input Movement
         if keys[pygame.K_LEFT]:
             dx = -current_speed
         if keys[pygame.K_RIGHT]:
             dx = current_speed
 
-        # 2. MOVING PLATFORM LOGIC (The "Stickiness")
-        # If we are on a platform, add its speed to ours
         if self.on_ground and self.current_platform:
-            if self.current_platform.move_dist > 0:  # Only if it's a moving one
+            if self.current_platform.move_dist > 0:
                 dx += self.current_platform.speed * self.current_platform.direction
 
-        # 3. Jumping
         if keys[pygame.K_SPACE] and self.on_ground:
             self.velocity_y = current_jump
             self.on_ground = False
-            self.current_platform = None  # Detach from platform when jumping
+            self.current_platform = None
 
-        # 4. Gravity
         self.velocity_y += GRAVITY
         dy += self.velocity_y
 
-        # 5. X Collision
         self.rect.x += dx
         for platform in platforms:
             if self.rect.colliderect(platform.rect):
@@ -51,7 +43,6 @@ class Player(pygame.sprite.Sprite):
                 elif dx < 0:
                     self.rect.left = platform.rect.right
 
-        # 6. Y Collision
         self.rect.y += dy
         self.on_ground = False  # Reset every frame
         for platform in platforms:
