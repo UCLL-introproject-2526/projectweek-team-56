@@ -1,6 +1,5 @@
 import pygame
 from settings import *
-# Yeni importlar:
 from platforms import Platform
 from enemy import Enemy
 from item import Item

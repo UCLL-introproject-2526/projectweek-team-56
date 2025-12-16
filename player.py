@@ -24,7 +24,6 @@ class Player(pygame.sprite.Sprite):
         if keys[pygame.K_LEFT]: dx = -current_speed
         if keys[pygame.K_RIGHT]: dx = current_speed
         
-        # Hareketli Platform Mantığı
         if self.on_ground and self.current_platform:
             if self.current_platform.move_dist > 0:
                 dx += self.current_platform.speed * self.current_platform.direction
