@@ -44,15 +44,15 @@ class Player(pygame.sprite.Sprite):
                     self.rect.left = platform.rect.right
 
         self.rect.y += dy
-        self.on_ground = False  # Reset every frame
+        self.on_ground = False 
         for platform in platforms:
             if self.rect.colliderect(platform.rect):
-                if self.velocity_y > 0:  # Falling down
+                if self.velocity_y > 0:  
                     self.rect.bottom = platform.rect.top
                     self.velocity_y = 0
                     self.on_ground = True
-                    self.current_platform = platform  # REMEMBER THIS PLATFORM
-                elif self.velocity_y < 0:  # Head bump
+                    self.current_platform = platform  
+                elif self.velocity_y < 0:  
                     self.rect.top = platform.rect.bottom
                     self.velocity_y = 0
 
