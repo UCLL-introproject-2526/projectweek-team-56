@@ -19,3 +19,5 @@ FLAG_GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 ITEM_BLUE = (0, 0, 255)
 ITEM_GOLD = (255, 215, 0)
+
+player_image = pygame.image.load("assets/player.png").convert_alpha()
