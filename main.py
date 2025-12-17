@@ -4,7 +4,6 @@ from settings import *
 from player import Player
 from levels import create_level
 from menu import draw_menu, handle_menu_events
-from text_utils import render_text_with_outline
 
 def load_level_data(level_num):
     platforms, enemies, items, goal, bg_file = create_level(level_num)
@@ -23,7 +22,6 @@ def main():
     pygame.display.set_caption("Merging Mario - Modular System")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("arial", 36)
-    kill_count = 0
     
     menu_font = pygame.font.SysFont("arial", 48, bold=True) 
 
@@ -50,7 +48,6 @@ def main():
                             player = Player(50, SCREEN_HEIGHT - 150)
                             platforms, enemies, items, goal, background_img, bg_file = load_level_data(current_level)
                             camera_x = 0
-                            kill_count = 0
                             game_state = "PLAYING"
                         elif game_state == "LEVEL_COMPLETE":
                             current_level += 1
@@ -77,7 +74,6 @@ def main():
             for enemy in hit_list:
                 if player.velocity_y > 0 and player.rect.bottom < enemy.rect.centery + 15:
                     enemy.kill()
-                    kill_count += 1
                     player.velocity_y = -12 
                 else:
                     player.is_alive = False
@@ -108,19 +104,24 @@ def main():
             for e in enemies: e.draw(screen, camera_x)
             goal.draw(screen, camera_x)
             
+            # Always draw the player so death animation can play when dead
             player.draw(screen, camera_x)
 
             if game_state == "GAME_OVER":
-                text = render_text_with_outline(font, "DIED! Press 'R' to Restart", BRICK_RED, (0,0,0), 1)
+                text = font.render("DIED! Press 'R' to Restart", True, BRICK_RED)
                 screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2))
             elif game_state == "LEVEL_COMPLETE":
-                text = render_text_with_outline(font, f"LEVEL {current_level} DONE! Press 'R'", FLAG_GREEN, (0,0,0), 1)
+                text = font.render(f"LEVEL {current_level} DONE! Press 'R'", True, FLAG_GREEN)
                 screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2))
 
-            info = render_text_with_outline(font, f"Level: {current_level}", WHITE, (0,0,0), 1)
+            info = font.render(f"Level: {current_level}", True, WHITE)
             screen.blit(info, (10, 10))
-            kills = render_text_with_outline(font, f"Kills: {kill_count}", WHITE, (0,0,0), 1)
-            screen.blit(kills, (SCREEN_WIDTH - 150, 10))
+            # Gold counter
+            try:
+                gold_text = font.render(f"Gold: {player.gold}", True, ITEM_GOLD)
+            except Exception:
+                gold_text = font.render("Gold: 0", True, ITEM_GOLD)
+            screen.blit(gold_text, (10, 50))
 
         pygame.display.update()
         clock.tick(FPS)

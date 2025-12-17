@@ -23,6 +23,7 @@ class Player(pygame.sprite.Sprite):
         self.is_alive = True
         self.speed_boost = 0
         self.jump_boost = 0
+        self.gold = 0
         self.current_platform = None
 
         self.death_timer = 0
@@ -108,6 +109,11 @@ class Player(pygame.sprite.Sprite):
             self.jump_boost = -5
             if not getattr(self, 'has_image', False):
                 self.image.fill(ITEM_GOLD)
+        elif item_type == "coin":
+            try:
+                self.gold += 1
+            except Exception:
+                self.gold = getattr(self, 'gold', 0) + 1
 
     def draw(self, surface, camera_x):
         draw_x = self.rect.x - camera_x

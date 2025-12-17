@@ -28,6 +28,12 @@ def create_level(level_number):
         enemies.add(Enemy(300, 200, 100))
         
         items.add(Item(650, 220, "speed")) 
+        # coins across platforms
+        items.add(Item(210, 420, "coin"))
+        items.add(Item(500, 320, "coin"))
+        items.add(Item(850, 270, "coin"))
+        items.add(Item(1150, 370, "coin"))
+        items.add(Item(1500, 260, "coin"))
         goal = Goal(1800, SCREEN_HEIGHT - 40)
         
     elif level_number == 2:
@@ -39,6 +45,11 @@ def create_level(level_number):
         enemies.add(Enemy(600, 320, 120))
         platforms.add(Platform(1000, 400, 500, 40, GROUND_BROWN))
         items.add(Item(325, 420, "jump"))
+        # coins
+        items.add(Item(50, SCREEN_HEIGHT - 80, "coin"))
+        items.add(Item(325, 380, "coin"))
+        items.add(Item(600, 320, "coin"))
+        items.add(Item(1200, 360, "coin"))
         goal = Goal(1400, 400)
 
     elif level_number == 3:
@@ -49,6 +60,10 @@ def create_level(level_number):
         enemies.add(Enemy(600, 530, 100))
         enemies.add(Enemy(800, 530, 100))
         items.add(Item(400, 530, "jump"))
+        items.add(Item(520, 320, "coin"))
+        items.add(Item(700, 170, "coin"))
+        items.add(Item(1200, 220, "coin"))
+        items.add(Item(1600, 500, "coin"))
         goal = Goal(1900, SCREEN_HEIGHT - 40)
 
     elif level_number == 4:
@@ -59,6 +74,12 @@ def create_level(level_number):
         platforms.add(Platform(800, 350, 50, 20, move_x=100))
         platforms.add(Platform(1200, 350, 50, 20, move_x=100))
         items.add(Item(200, 530, "speed"))
+        # spread coins through the longer level
+        items.add(Item(400, 320, "coin"))
+        items.add(Item(800, 320, "coin"))
+        items.add(Item(1200, 320, "coin"))
+        items.add(Item(200, 500, "coin"))
+        items.add(Item(2400, 520, "coin"))
         goal = Goal(2800, SCREEN_HEIGHT - 40)
 
     try:
