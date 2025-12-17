@@ -74,40 +74,30 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y > SCREEN_HEIGHT + 100:
             self.is_alive = False
 
-        # start or update death particle animation when dead
-        if not self.is_alive:
-            if not self.death_started:
-                # initialize particles once at death
-                self.death_started = True
-                self.death_timer = 0
-                self.particles = []
-                max_life = 80
-                num = 120
-                for _ in range(num):
-                    px = random.uniform(self.rect.left, self.rect.right)
-                    py = random.uniform(self.rect.top, self.rect.bottom)
-                    vx = random.uniform(-4.0, 4.0)
-                    vy = random.uniform(-6.0, -1.0)
-                    life = random.randint(40, max_life)
-                    size = random.randint(2, 4)
-                    palette = [BRICK_RED, WHITE]
-                    if getattr(self, 'speed_boost', 0) > 0:
-                        palette.append(DARK_BLUE)
-                    if getattr(self, 'jump_boost', 0) != 0:
-                        palette.append(ITEM_GOLD)
-                    color = random.choice(palette)
-                    self.particles.append({'x': px, 'y': py, 'vx': vx, 'vy': vy, 'life': life, 'max_life': life, 'size': size, 'color': color})
-            else:
-                self.death_timer += 1
-                # update particles
-                for p in self.particles[:]:
-                    p['vy'] += GRAVITY * 0.4
-                    p['x'] += p['vx']
-                    p['y'] += p['vy']
-                    p['vx'] *= 0.99
-                    p['life'] -= 1
-                    if p['life'] <= 0:
-                        self.particles.remove(p)
+        # ensure death state is initialized if death occurs during update()
+        if not self.is_alive and not self.death_started:
+            self.start_death()
+
+    def start_death(self):
+        self.death_started = True
+        self.death_timer = 0
+        self.particles = []
+        max_life = 80
+        num = 120
+        for _ in range(num):
+            px = random.uniform(self.rect.left, self.rect.right)
+            py = random.uniform(self.rect.top, self.rect.bottom)
+            vx = random.uniform(-4.0, 4.0)
+            vy = random.uniform(-6.0, -1.0)
+            life = random.randint(40, max_life)
+            size = random.randint(2, 4)
+            palette = [BRICK_RED, WHITE]
+            if getattr(self, 'speed_boost', 0) > 0:
+                palette.append(DARK_BLUE)
+            if getattr(self, 'jump_boost', 0) != 0:
+                palette.append(ITEM_GOLD)
+            color = random.choice(palette)
+            self.particles.append({'x': px, 'y': py, 'vx': vx, 'vy': vy, 'life': life, 'max_life': life, 'size': size, 'color': color})
 
     def merge_with_item(self, item_type):
         if item_type == "speed":
@@ -124,8 +114,25 @@ class Player(pygame.sprite.Sprite):
         draw_y = self.rect.y
         # If player has died, draw particles and advance death animation
         if not self.is_alive:
+            # ensure particles/init exist if death started elsewhere
+            if not self.death_started:
+                self.start_death()
+            # advance death timer so animation progresses even when update() isn't called
+            self.death_timer += 1
             prog = min(1.0, self.death_timer / max(1, self.death_duration))
-            # draw particles (they were created in update())
+            # update and draw particles (they were created in start_death())
+            for p in self.particles[:]:
+                # float upward and disperse
+                p['vy'] -= 0.12
+                p['x'] += p['vx'] * 0.6
+                p['y'] += p['vy']
+                p['vx'] *= 0.985
+                if p['size'] > 1 and random.random() < 0.02:
+                    p['size'] -= 1
+                p['life'] -= 1
+                if p['life'] <= 0:
+                    self.particles.remove(p)
+                    continue
             for p in self.particles:
                 life_ratio = max(0.0, p['life'] / max(1, p['max_life']))
                 a = int(255 * life_ratio)
