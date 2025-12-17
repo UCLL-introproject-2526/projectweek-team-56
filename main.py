@@ -37,8 +37,9 @@ def main():
         pygame.mixer.music.load("music/background.mp3")
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
-        # one-shot death sound (optional)
+        # one-shot death sound (optional) and jump sound
         death_sfx = None
+        jump_sfx = None
         try:
             death_sfx = pygame.mixer.Sound("music/death.wav")
         except Exception:
@@ -46,6 +47,13 @@ def main():
                 death_sfx = pygame.mixer.Sound("assets/death.wav")
             except Exception:
                 death_sfx = None
+        try:
+            jump_sfx = pygame.mixer.Sound("music/jump.wav")
+        except Exception:
+            try:
+                jump_sfx = pygame.mixer.Sound("assets/jump.wav")
+            except Exception:
+                jump_sfx = None
     except Exception:
         death_sfx = None
         pass
@@ -119,6 +127,14 @@ def main():
                                 except Exception:
                                     pass
                                 game_state = "PLAYING"
+                    # Play jump sound on keydown when jumping from ground
+                    elif event.key == pygame.K_SPACE:
+                        try:
+                            if jump_sfx and getattr(player, 'on_ground', False):
+                                jump_sfx.play()
+                        except Exception:
+                            pass
+
                     elif event.key == pygame.K_q and game_state == "GAME_WIN":
                         running = False
 
@@ -215,25 +231,33 @@ def main():
 
             if game_state == "GAME_OVER":
                 try:
-                    text_surf = render_text_with_outline(font, "DIED! Press 'R' to Restart", BRICK_RED, outline_color=BLACK, outline_width=1)
-                    rect = text_surf.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
+                    text_surf = render_text_with_outline(
+                        font, "DIED! Press 'R' to Restart", BRICK_RED, outline_color=BLACK, outline_width=1)
+                    rect = text_surf.get_rect(
+                        center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
                     screen.blit(text_surf, rect)
                 except Exception:
                     try:
-                        text = font.render("DIED! Press 'R' to Restart", True, BRICK_RED)
-                        screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2))
+                        text = font.render(
+                            "DIED! Press 'R' to Restart", True, BRICK_RED)
+                        screen.blit(text, (SCREEN_WIDTH//2 -
+                                    text.get_width()//2, SCREEN_HEIGHT//2))
                     except Exception:
                         pass
 
             elif game_state == "LEVEL_COMPLETE":
                 try:
-                    text_surf = render_text_with_outline(font, f"LEVEL {current_level} DONE! Press 'R'", FLAG_GREEN, outline_color=BLACK, outline_width=1)
-                    rect = text_surf.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
+                    text_surf = render_text_with_outline(
+                        font, f"LEVEL {current_level} DONE! Press 'R'", FLAG_GREEN, outline_color=BLACK, outline_width=1)
+                    rect = text_surf.get_rect(
+                        center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
                     screen.blit(text_surf, rect)
                 except Exception:
                     try:
-                        text = font.render(f"LEVEL {current_level} DONE! Press 'R'", True, FLAG_GREEN)
-                        screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2))
+                        text = font.render(
+                            f"LEVEL {current_level} DONE! Press 'R'", True, FLAG_GREEN)
+                        screen.blit(text, (SCREEN_WIDTH//2 -
+                                    text.get_width()//2, SCREEN_HEIGHT//2))
                     except Exception:
                         pass
 
@@ -244,28 +268,37 @@ def main():
                 screen.blit(overlay, (0, 0))
 
                 try:
-                    win_text_surf = render_text_with_outline(win_title_font, "YOU WON!", ITEM_GOLD, outline_color=BLACK, outline_width=1)
-                    screen.blit(win_text_surf, win_text_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)))
+                    win_text_surf = render_text_with_outline(
+                        win_title_font, "YOU WON!", ITEM_GOLD, outline_color=BLACK, outline_width=1)
+                    screen.blit(win_text_surf, win_text_surf.get_rect(
+                        center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)))
                 except Exception:
                     try:
-                        win_text = win_title_font.render("YOU WON!", True, ITEM_GOLD)
-                        screen.blit(win_text, win_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)))
+                        win_text = win_title_font.render(
+                            "YOU WON!", True, ITEM_GOLD)
+                        screen.blit(win_text, win_text.get_rect(
+                            center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)))
                     except Exception:
                         pass
 
                 try:
-                    prompt_surf = render_text_with_outline(font, "Press 'R' to Restart Game or 'Q' to Quit", WHITE, outline_color=BLACK, outline_width=1)
-                    screen.blit(prompt_surf, prompt_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
+                    prompt_surf = render_text_with_outline(
+                        font, "Press 'R' to Restart Game or 'Q' to Quit", WHITE, outline_color=BLACK, outline_width=1)
+                    screen.blit(prompt_surf, prompt_surf.get_rect(
+                        center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
                 except Exception:
                     try:
-                        prompt_text = font.render("Press 'R' to Restart Game or 'Q' to Quit", True, WHITE)
-                        screen.blit(prompt_text, prompt_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
+                        prompt_text = font.render(
+                            "Press 'R' to Restart Game or 'Q' to Quit", True, WHITE)
+                        screen.blit(prompt_text, prompt_text.get_rect(
+                            center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
                     except Exception:
                         pass
 
             # Level info with outline
             try:
-                info_surf = render_text_with_outline(font, f"Level: {current_level}", WHITE, outline_color=BLACK, outline_width=1)
+                info_surf = render_text_with_outline(
+                    font, f"Level: {current_level}", WHITE, outline_color=BLACK, outline_width=1)
                 screen.blit(info_surf, (10, 10))
             except Exception:
                 try:
@@ -277,16 +310,16 @@ def main():
             # Gold with outline (fallback to plain render)
             try:
                 gold_val = getattr(player, 'gold', 0)
-                gold_surf = render_text_with_outline(font, f"Gold: {gold_val}", ITEM_GOLD, outline_color=BLACK, outline_width=1)
+                gold_surf = render_text_with_outline(
+                    font, f"Gold: {gold_val}", ITEM_GOLD, outline_color=BLACK, outline_width=1)
                 screen.blit(gold_surf, (10, 50))
             except Exception:
                 try:
-                    gold_text = font.render(f"Gold: {getattr(player, 'gold', 0)}", True, ITEM_GOLD)
+                    gold_text = font.render(
+                        f"Gold: {getattr(player, 'gold', 0)}", True, ITEM_GOLD)
                     screen.blit(gold_text, (10, 50))
                 except Exception:
                     pass
-
-            
 
         pygame.display.update()
         clock.tick(FPS)
