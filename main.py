@@ -90,9 +90,16 @@ def main():
 
             hit_list = pygame.sprite.spritecollide(player, enemies, False)
             for enemy in hit_list:
+                # ignore enemies that are already in their death animation
+                if getattr(enemy, 'death_started', False):
+                    continue
                 if player.velocity_y > 0 and player.rect.bottom < enemy.rect.centery + 15:
-                    enemy.kill()
-                    player.velocity_y = -12 
+                    # start a death animation instead of immediate removal
+                    if hasattr(enemy, 'start_death'):
+                        enemy.start_death()
+                    else:
+                        enemy.kill()
+                    player.velocity_y = -12
                 else:
                     player.is_alive = False
 

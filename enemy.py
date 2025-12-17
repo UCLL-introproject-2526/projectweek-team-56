@@ -1,4 +1,5 @@
 import pygame
+import random
 from settings import *
 
 class Enemy(pygame.sprite.Sprite):
@@ -24,8 +25,29 @@ class Enemy(pygame.sprite.Sprite):
         self.start_x = x
         self.distance = distance
         self.direction = 1 
+        # death / particle animation state
+        self.death_started = False
+        self.death_timer = 0
+        self.death_duration = 50
+        self.particles = []
 
     def update(self):
+        # if death animation running, update particles and finish when done
+        if self.death_started:
+            self.death_timer += 1
+            for p in self.particles[:]:
+                p['vy'] += 0.15
+                p['x'] += p['vx']
+                p['y'] += p['vy']
+                p['life'] -= 1
+                if p['life'] <= 0:
+                    self.particles.remove(p)
+            if self.death_timer > self.death_duration:
+                # remove from all groups
+                super().kill()
+            return
+
+        # normal patrol movement
         self.rect.x += self.direction * ENEMY_SPEED
         if self.rect.x > self.start_x + self.distance:
             self.direction = -1
@@ -40,4 +62,42 @@ class Enemy(pygame.sprite.Sprite):
                 self.image = self.base_image
 
     def draw(self, surface, camera_x):
-        surface.blit(self.image, (self.rect.x - camera_x, self.rect.y))
+        draw_x = self.rect.x - camera_x
+        draw_y = self.rect.y
+        if self.death_started:
+            # draw particles
+            for p in self.particles:
+                pygame.draw.circle(surface, p['color'], (int(p['x'] - camera_x), int(p['y'])), p['size'])
+
+            # shrink and fade the enemy sprite
+            prog = min(1.0, self.death_timer / max(1, self.death_duration))
+            w, h = self.base_image.get_size()
+            scale = max(0.1, 1.0 - 0.9 * prog)
+            new_w = max(1, int(w * scale))
+            new_h = max(1, int(h * scale))
+            img = pygame.transform.smoothscale(self.base_image, (new_w, new_h))
+            alpha = int(255 * (1.0 - prog))
+            img.set_alpha(alpha)
+            img_x = draw_x + (w - new_w) // 2
+            img_y = draw_y + (h - new_h) // 2
+            surface.blit(img, (img_x - camera_x, img_y))
+            return
+
+        surface.blit(self.image, (draw_x, draw_y))
+
+    def start_death(self):
+        if self.death_started:
+            return
+        self.death_started = True
+        self.death_timer = 0
+        self.particles = []
+        num = 30
+        for _ in range(num):
+            px = random.uniform(self.rect.left, self.rect.right)
+            py = random.uniform(self.rect.top, self.rect.bottom)
+            vx = random.uniform(-3.0, 3.0)
+            vy = random.uniform(-5.0, -1.0)
+            life = random.randint(20, 40)
+            size = random.randint(2, 4)
+            color = random.choice([ENEMY_PURPLE, (255,255,255)])
+            self.particles.append({'x': px, 'y': py, 'vx': vx, 'vy': vy, 'life': life, 'size': size, 'color': color})
