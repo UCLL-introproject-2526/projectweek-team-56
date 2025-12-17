@@ -2,7 +2,6 @@ import pygame
 import random
 import math
 from settings import *
-import settings
 
 
 def _remove_bg_by_color(surface, sample_pos=(0, 0), thresh=60):
@@ -136,15 +135,6 @@ class Enemy(pygame.sprite.Sprite):
             self.particles.append(
                 {'x': px, 'y': py, 'vx': vx, 'vy': vy, 'life': life, 'size': size, 'color': color})
 
-    def kill(self):
-        """Override kill to increment a global kill counter once, then remove sprite from groups."""
-        try:
-            if not getattr(self, "_kill_counted", False):
-                settings.KILL_COUNT += 1
-                self._kill_counted = True
-        except Exception:
-            pass
-        super().kill()
 
 
 class FlyingEnemy(Enemy):

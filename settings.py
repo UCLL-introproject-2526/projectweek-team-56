@@ -9,9 +9,6 @@ JUMP_STRENGTH = -16
 PLAYER_SPEED = 5
 ENEMY_SPEED = 3
 
-# Global kill counter (shared across modules)
-KILL_COUNT = 0
-
 
 SKY_BLUE = (135, 206, 235)
 BRICK_RED = (200, 50, 50)

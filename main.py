@@ -286,17 +286,7 @@ def main():
                 except Exception:
                     pass
 
-            # Draw kill counter with a thin black outline
-            try:
-                kill_surf = render_text_with_outline(font, f"Kills: {KILL_COUNT}", WHITE, outline_color=BLACK, outline_width=1)
-                screen.blit(kill_surf, (10, 90))
-            except Exception:
-                # fallback: simple render if outlined render fails
-                try:
-                    k = font.render(f"Kills: {KILL_COUNT}", True, WHITE)
-                    screen.blit(k, (10, 90))
-                except Exception:
-                    pass
+            
 
         pygame.display.update()
         clock.tick(FPS)
