@@ -21,6 +21,14 @@ def load_level_data(level_num):
 
 def main():
     pygame.init()
+    # try to initialize audio and play looping background music (safe-fail)
+    try:
+        pygame.mixer.init()
+        pygame.mixer.music.load("music/background.mp3")
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)
+    except Exception:
+        pass
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Merging Mario - Modular System")
     clock = pygame.time.Clock()
@@ -184,6 +192,10 @@ def main():
         clock.tick(FPS)
 
     pygame.quit()
+    try:
+        pygame.mixer.music.stop()
+    except Exception:
+        pass
     sys.exit()
 
 
