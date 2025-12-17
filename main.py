@@ -4,6 +4,7 @@ from settings import *
 from player import Player
 from levels import create_level
 from menu import draw_menu, handle_menu_events
+from text_utils import render_text_with_outline
 
 
 def load_level_data(level_num):
@@ -213,16 +214,28 @@ def main():
                 player.draw(screen, camera_x)
 
             if game_state == "GAME_OVER":
-                text = font.render(
-                    "DIED! Press 'R' to Restart", True, BRICK_RED)
-                screen.blit(text, (SCREEN_WIDTH//2 -
-                                   text.get_width()//2, SCREEN_HEIGHT//2))
+                try:
+                    text_surf = render_text_with_outline(font, "DIED! Press 'R' to Restart", BRICK_RED, outline_color=BLACK, outline_width=1)
+                    rect = text_surf.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
+                    screen.blit(text_surf, rect)
+                except Exception:
+                    try:
+                        text = font.render("DIED! Press 'R' to Restart", True, BRICK_RED)
+                        screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2))
+                    except Exception:
+                        pass
 
             elif game_state == "LEVEL_COMPLETE":
-                text = font.render(
-                    f"LEVEL {current_level} DONE! Press 'R'", True, FLAG_GREEN)
-                screen.blit(text, (SCREEN_WIDTH//2 -
-                                   text.get_width()//2, SCREEN_HEIGHT//2))
+                try:
+                    text_surf = render_text_with_outline(font, f"LEVEL {current_level} DONE! Press 'R'", FLAG_GREEN, outline_color=BLACK, outline_width=1)
+                    rect = text_surf.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2))
+                    screen.blit(text_surf, rect)
+                except Exception:
+                    try:
+                        text = font.render(f"LEVEL {current_level} DONE! Press 'R'", True, FLAG_GREEN)
+                        screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2))
+                    except Exception:
+                        pass
 
             elif game_state == "GAME_WIN":
                 overlay = pygame.Surface(
@@ -230,24 +243,60 @@ def main():
                 overlay.fill((0, 0, 0, 180))
                 screen.blit(overlay, (0, 0))
 
-                win_text = win_title_font.render("YOU WON!", True, ITEM_GOLD)
-                screen.blit(win_text, win_text.get_rect(
-                    center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)))
+                try:
+                    win_text_surf = render_text_with_outline(win_title_font, "YOU WON!", ITEM_GOLD, outline_color=BLACK, outline_width=1)
+                    screen.blit(win_text_surf, win_text_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)))
+                except Exception:
+                    try:
+                        win_text = win_title_font.render("YOU WON!", True, ITEM_GOLD)
+                        screen.blit(win_text, win_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)))
+                    except Exception:
+                        pass
 
-                prompt_text = font.render(
-                    "Press 'R' to Restart Game or 'Q' to Quit", True, WHITE)
-                screen.blit(prompt_text, prompt_text.get_rect(
-                    center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
+                try:
+                    prompt_surf = render_text_with_outline(font, "Press 'R' to Restart Game or 'Q' to Quit", WHITE, outline_color=BLACK, outline_width=1)
+                    screen.blit(prompt_surf, prompt_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
+                except Exception:
+                    try:
+                        prompt_text = font.render("Press 'R' to Restart Game or 'Q' to Quit", True, WHITE)
+                        screen.blit(prompt_text, prompt_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
+                    except Exception:
+                        pass
 
-            info = font.render(f"Level: {current_level}", True, WHITE)
-            screen.blit(info, (10, 10))
-
+            # Level info with outline
             try:
-                gold_text = font.render(
-                    f"Gold: {player.gold}", True, ITEM_GOLD)
+                info_surf = render_text_with_outline(font, f"Level: {current_level}", WHITE, outline_color=BLACK, outline_width=1)
+                screen.blit(info_surf, (10, 10))
             except Exception:
-                gold_text = font.render("Gold: 0", True, ITEM_GOLD)
-            screen.blit(gold_text, (10, 50))
+                try:
+                    info = font.render(f"Level: {current_level}", True, WHITE)
+                    screen.blit(info, (10, 10))
+                except Exception:
+                    pass
+
+            # Gold with outline (fallback to plain render)
+            try:
+                gold_val = getattr(player, 'gold', 0)
+                gold_surf = render_text_with_outline(font, f"Gold: {gold_val}", ITEM_GOLD, outline_color=BLACK, outline_width=1)
+                screen.blit(gold_surf, (10, 50))
+            except Exception:
+                try:
+                    gold_text = font.render(f"Gold: {getattr(player, 'gold', 0)}", True, ITEM_GOLD)
+                    screen.blit(gold_text, (10, 50))
+                except Exception:
+                    pass
+
+            # Draw kill counter with a thin black outline
+            try:
+                kill_surf = render_text_with_outline(font, f"Kills: {KILL_COUNT}", WHITE, outline_color=BLACK, outline_width=1)
+                screen.blit(kill_surf, (10, 90))
+            except Exception:
+                # fallback: simple render if outlined render fails
+                try:
+                    k = font.render(f"Kills: {KILL_COUNT}", True, WHITE)
+                    screen.blit(k, (10, 90))
+                except Exception:
+                    pass
 
         pygame.display.update()
         clock.tick(FPS)
