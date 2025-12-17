@@ -2,6 +2,7 @@ import pygame
 import random
 from settings import *
 
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, distance):
         super().__init__()
@@ -24,7 +25,7 @@ class Enemy(pygame.sprite.Sprite):
         self.facing = 1
         self.start_x = x
         self.distance = distance
-        self.direction = 1 
+        self.direction = 1
         # death / particle animation state
         self.death_started = False
         self.death_timer = 0
@@ -57,7 +58,8 @@ class Enemy(pygame.sprite.Sprite):
         if self.direction != getattr(self, 'facing', 1):
             self.facing = self.direction
             if self.facing < 0:
-                self.image = pygame.transform.flip(self.base_image, True, False)
+                self.image = pygame.transform.flip(
+                    self.base_image, True, False)
             else:
                 self.image = self.base_image
 
@@ -67,7 +69,8 @@ class Enemy(pygame.sprite.Sprite):
         if self.death_started:
             # draw particles
             for p in self.particles:
-                pygame.draw.circle(surface, p['color'], (int(p['x'] - camera_x), int(p['y'])), p['size'])
+                pygame.draw.circle(surface, p['color'], (int(
+                    p['x'] - camera_x), int(p['y'])), p['size'])
 
             # shrink and fade the enemy sprite
             prog = min(1.0, self.death_timer / max(1, self.death_duration))
@@ -99,5 +102,6 @@ class Enemy(pygame.sprite.Sprite):
             vy = random.uniform(-5.0, -1.0)
             life = random.randint(20, 40)
             size = random.randint(2, 4)
-            color = random.choice([ENEMY_PURPLE, (255,255,255)])
-            self.particles.append({'x': px, 'y': py, 'vx': vx, 'vy': vy, 'life': life, 'size': size, 'color': color})
+            color = random.choice([ENEMY_PURPLE, (255, 255, 255)])
+            self.particles.append(
+                {'x': px, 'y': py, 'vx': vx, 'vy': vy, 'life': life, 'size': size, 'color': color})

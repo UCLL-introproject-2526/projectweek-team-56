@@ -3,7 +3,8 @@ import sys
 from settings import *
 from player import Player
 from levels import create_level
-from menu import draw_menu, handle_menu_events 
+from menu import draw_menu, handle_menu_events
+
 
 def load_level_data(level_num):
     platforms, enemies, items, goal, bg_file = create_level(level_num)
@@ -11,10 +12,12 @@ def load_level_data(level_num):
     if bg_file:
         try:
             background_img = pygame.image.load(bg_file).convert()
-            background_img = pygame.transform.scale(background_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
+            background_img = pygame.transform.scale(
+                background_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
         except Exception:
             background_img = None
     return platforms, enemies, items, goal, background_img, bg_file
+
 
 def main():
     pygame.init()
@@ -22,15 +25,16 @@ def main():
     pygame.display.set_caption("Merging Mario - Modular System")
     clock = pygame.time.Clock()
     font = pygame.font.SysFont("arial", 36)
-    
-    menu_font = pygame.font.SysFont("arial", 48, bold=True) 
+
+    menu_font = pygame.font.SysFont("arial", 48, bold=True)
     win_title_font = pygame.font.SysFont("arial", 72, bold=True)
 
     current_level = 1
-    
+
     player = Player(50, SCREEN_HEIGHT - 150)
-    platforms, enemies, items, goal, background_img, bg_file = load_level_data(current_level)
-    
+    platforms, enemies, items, goal, background_img, bg_file = load_level_data(
+        current_level)
+
     camera_x = 0
     game_state = "MENU"
 
@@ -38,10 +42,11 @@ def main():
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False 
+                running = False
 
-            game_state = handle_menu_events(event, game_state, SCREEN_WIDTH, SCREEN_HEIGHT)
-            
+            game_state = handle_menu_events(
+                event, game_state, SCREEN_WIDTH, SCREEN_HEIGHT)
+
             if event.type == pygame.KEYDOWN:
                 if game_state != "MENU":
                     if event.key == pygame.K_r:
@@ -50,39 +55,42 @@ def main():
                             # Restart from GAME_WIN resets to Level 1
                             current_level = 1
                             player = Player(50, SCREEN_HEIGHT - 150)
-                            platforms, enemies, items, goal, background_img, bg_file = load_level_data(current_level)
+                            platforms, enemies, items, goal, background_img, bg_file = load_level_data(
+                                current_level)
                             camera_x = 0
                             game_state = "PLAYING"
-                        
+
                         elif game_state == "GAME_OVER":
                             # Restart from GAME_OVER only reloads the *current* level
                             # current_level is NOT reset to 1
                             player = Player(50, SCREEN_HEIGHT - 150)
-                            platforms, enemies, items, goal, background_img, bg_file = load_level_data(current_level)
+                            platforms, enemies, items, goal, background_img, bg_file = load_level_data(
+                                current_level)
                             camera_x = 0
                             game_state = "PLAYING"
 
                         elif game_state == "LEVEL_COMPLETE":
-                            if current_level >= 4: 
-                                game_state = "GAME_WIN" 
+                            if current_level >= 4:
+                                game_state = "GAME_WIN"
                             else:
                                 current_level += 1
                                 player = Player(50, SCREEN_HEIGHT - 150)
-                                platforms, enemies, items, goal, background_img, bg_file = load_level_data(current_level)
+                                platforms, enemies, items, goal, background_img, bg_file = load_level_data(
+                                    current_level)
                                 camera_x = 0
                                 game_state = "PLAYING"
                     elif event.key == pygame.K_q and game_state == "GAME_WIN":
                         running = False
 
-
         if game_state == "PLAYING":
             keys = pygame.key.get_pressed()
-            
-            platforms.update() 
+
+            platforms.update()
             player.update(keys, platforms)
 
             target_camera_x = player.rect.centerx - SCREEN_WIDTH // 2
-            if target_camera_x < 0: target_camera_x = 0
+            if target_camera_x < 0:
+                target_camera_x = 0
             camera_x += (target_camera_x - camera_x) * 0.1
 
             for enemy in enemies:
@@ -114,60 +122,70 @@ def main():
             if not player.is_alive:
                 game_state = "GAME_OVER"
 
-        
-        
         if game_state == "MENU":
-            draw_menu(screen, menu_font, font, SCREEN_WIDTH, SCREEN_HEIGHT, GREEN, WHITE, BLACK)
-            
+            draw_menu(screen, menu_font, font, SCREEN_WIDTH,
+                      SCREEN_HEIGHT, GREEN, WHITE, BLACK)
+
         else:
             if background_img:
                 screen.blit(background_img, (0, 0))
             else:
                 screen.fill(SKY_BLUE)
 
-            for p in platforms: p.draw(screen, camera_x)
-            for i in items: i.draw(screen, camera_x)
-            for e in enemies: e.draw(screen, camera_x)
+            for p in platforms:
+                p.draw(screen, camera_x)
+            for i in items:
+                i.draw(screen, camera_x)
+            for e in enemies:
+                e.draw(screen, camera_x)
             goal.draw(screen, camera_x)
-            
-            if player.is_alive and game_state != "GAME_WIN": 
+
+            if player.is_alive and game_state != "GAME_WIN":
                 player.draw(screen, camera_x)
 
             if game_state == "GAME_OVER":
-                text = font.render("DIED! Press 'R' to Restart", True, BRICK_RED)
-                screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2))
-            
+                text = font.render(
+                    "DIED! Press 'R' to Restart", True, BRICK_RED)
+                screen.blit(text, (SCREEN_WIDTH//2 -
+                            text.get_width()//2, SCREEN_HEIGHT//2))
+
             elif game_state == "LEVEL_COMPLETE":
-                text = font.render(f"LEVEL {current_level} DONE! Press 'R'", True, FLAG_GREEN)
-                screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2))
-            
+                text = font.render(
+                    f"LEVEL {current_level} DONE! Press 'R'", True, FLAG_GREEN)
+                screen.blit(text, (SCREEN_WIDTH//2 -
+                            text.get_width()//2, SCREEN_HEIGHT//2))
+
             elif game_state == "GAME_WIN":
-                overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-                overlay.fill((0, 0, 0, 180)) 
+                overlay = pygame.Surface(
+                    (SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+                overlay.fill((0, 0, 0, 180))
                 screen.blit(overlay, (0, 0))
-                
+
                 win_text = win_title_font.render("YOU WON!", True, ITEM_GOLD)
-                screen.blit(win_text, win_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)))
+                screen.blit(win_text, win_text.get_rect(
+                    center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)))
 
-                prompt_text = font.render("Press 'R' to Restart Game or 'Q' to Quit", True, WHITE)
-                screen.blit(prompt_text, prompt_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
-
+                prompt_text = font.render(
+                    "Press 'R' to Restart Game or 'Q' to Quit", True, WHITE)
+                screen.blit(prompt_text, prompt_text.get_rect(
+                    center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
 
             info = font.render(f"Level: {current_level}", True, WHITE)
             screen.blit(info, (10, 10))
-            
+
             try:
-                gold_text = font.render(f"Gold: {player.gold}", True, ITEM_GOLD)
+                gold_text = font.render(
+                    f"Gold: {player.gold}", True, ITEM_GOLD)
             except Exception:
                 gold_text = font.render("Gold: 0", True, ITEM_GOLD)
             screen.blit(gold_text, (10, 50))
-
 
         pygame.display.update()
         clock.tick(FPS)
 
     pygame.quit()
     sys.exit()
+
 
 if __name__ == "__main__":
     main()
