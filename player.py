@@ -10,12 +10,12 @@ DARK_BLUE = (0, 40, 180)
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        
+
         loaded = False
         for fn in ("assets/player.png", "assets/player.jpg", "assets/player.jpeg"):
             try:
                 img = pygame.image.load(fn)
-                
+
                 img = pygame.transform.scale(img, (40, 40))
                 self.image = img.convert_alpha()
                 self.has_image = True
@@ -50,8 +50,10 @@ class Player(pygame.sprite.Sprite):
         current_speed = PLAYER_SPEED + self.speed_boost
         current_jump = JUMP_STRENGTH + self.jump_boost
 
-        if keys[pygame.K_a] or keys[pygame.K_LEFT]: dx = -current_speed
-        if keys[pygame.K_d] or keys[pygame.K_RIGHT]: dx = current_speed
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            dx = -current_speed
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            dx = current_speed
 
         if self.on_ground and self.current_platform:
             if self.current_platform.move_dist > 0:
@@ -68,8 +70,10 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += dx
         for platform in platforms:
             if self.rect.colliderect(platform.rect):
-                if dx > 0: self.rect.right = platform.rect.left
-                elif dx < 0: self.rect.left = platform.rect.right
+                if dx > 0:
+                    self.rect.right = platform.rect.left
+                elif dx < 0:
+                    self.rect.left = platform.rect.right
 
         self.rect.y += dy
         self.on_ground = False
@@ -115,7 +119,8 @@ class Player(pygame.sprite.Sprite):
             if getattr(self, 'jump_boost', 0) != 0:
                 palette.append(ITEM_GOLD)
             color = random.choice(palette)
-            self.particles.append({'x': px, 'y': py, 'vx': vx, 'vy': vy, 'life': life, 'max_life': life, 'size': size, 'color': color})
+            self.particles.append({'x': px, 'y': py, 'vx': vx, 'vy': vy,
+                                  'life': life, 'max_life': life, 'size': size, 'color': color})
 
     def merge_with_item(self, item_type):
         if item_type == "speed":
@@ -174,8 +179,10 @@ class Player(pygame.sprite.Sprite):
             if getattr(self, 'speed_boost', 0) > 0 and glow_fade > 0:
                 gw, gh = img.get_size()
                 glow = pygame.Surface((gw + 12, gh + 12), pygame.SRCALPHA)
-                pygame.draw.ellipse(glow, (*DARK_BLUE, glow_fade), glow.get_rect())
-                surface.blit(glow, (draw_x - (gw+12-w)//2 - 6, draw_y - (gh+12-h)//2 - 6), special_flags=pygame.BLEND_ADD)
+                pygame.draw.ellipse(
+                    glow, (*DARK_BLUE, glow_fade), glow.get_rect())
+                surface.blit(glow, (draw_x - (gw+12-w)//2 - 6, draw_y -
+                             (gh+12-h)//2 - 6), special_flags=pygame.BLEND_ADD)
             if getattr(self, 'jump_boost', 0) != 0 and glow_fade > 0:
                 gw, gh = img.get_size()
                 pad = 10
@@ -187,9 +194,11 @@ class Player(pygame.sprite.Sprite):
                     t = i / float(steps)
                     a = int(max_alpha * (1.0 - t) * (0.7 + 0.3 * (1 - t)))
                     inset = int(i * (pad / steps))
-                    rect = pygame.Rect(inset, inset, glow_w - inset * 2, glow_h - inset * 2)
+                    rect = pygame.Rect(
+                        inset, inset, glow_w - inset * 2, glow_h - inset * 2)
                     pygame.draw.ellipse(glow2, (*ITEM_GOLD, a), rect)
-                surface.blit(glow2, (draw_x - (glow_w-gw)//2, draw_y - (glow_h-gh)//2), special_flags=pygame.BLEND_ADD)
+                surface.blit(glow2, (draw_x - (glow_w-gw)//2, draw_y -
+                             (glow_h-gh)//2), special_flags=pygame.BLEND_ADD)
             float_up = int(40 * prog)
             img_x = draw_x + (w - img.get_width()) // 2
             img_y = draw_y - float_up + (h - img.get_height()) // 2
@@ -198,11 +207,12 @@ class Player(pygame.sprite.Sprite):
 
         if getattr(self, 'speed_boost', 0) > 0:
             w, h = self.rect.size
-            layers = [ (w+8, h+8, 110), (w+4, h+4, 70) ]
+            layers = [(w+8, h+8, 110), (w+4, h+4, 70)]
             for sw, sh, alpha in layers:
                 glow = pygame.Surface((sw, sh), pygame.SRCALPHA)
                 pygame.draw.ellipse(glow, (*DARK_BLUE, alpha), glow.get_rect())
-                surface.blit(glow, (draw_x - (sw-w)//2, draw_y - (sh-h)//2), special_flags=pygame.BLEND_ADD)
+                surface.blit(glow, (draw_x - (sw-w)//2, draw_y -
+                             (sh-h)//2), special_flags=pygame.BLEND_ADD)
 
         if getattr(self, 'jump_boost', 0) != 0:
             w, h = self.rect.size
@@ -217,15 +227,14 @@ class Player(pygame.sprite.Sprite):
                 t = i / float(steps)
                 a = int(max_alpha * (1.0 - t) * (0.35 + 0.65 * (1 - t)))
                 inset = int(t * pad)
-                rect = pygame.Rect(inset, inset, glow_w - inset * 2, glow_h - inset * 2)
+                rect = pygame.Rect(inset, inset, glow_w -
+                                   inset * 2, glow_h - inset * 2)
                 pygame.draw.ellipse(halo, (*ITEM_GOLD, a), rect)
-            surface.blit(halo, (draw_x - (glow_w-w)//2, draw_y - (glow_h-h)//2), special_flags=pygame.BLEND_ADD)
+            surface.blit(halo, (draw_x - (glow_w-w)//2, draw_y -
+                         (glow_h-h)//2), special_flags=pygame.BLEND_ADD)
 
         surface.blit(self.image, (draw_x, draw_y))
-import pygame
-import random
-import math
-from settings import *
+
 
 DARK_BLUE = (0, 40, 180)
 
@@ -233,12 +242,12 @@ DARK_BLUE = (0, 40, 180)
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        
+
         loaded = False
         for fn in ("assets/player.png", "assets/player.jpg", "assets/player.jpeg"):
             try:
                 img = pygame.image.load(fn)
-                
+
                 img = pygame.transform.scale(img, (40, 40))
                 self.image = img.convert_alpha()
                 self.has_image = True
@@ -272,8 +281,10 @@ class Player(pygame.sprite.Sprite):
         current_speed = PLAYER_SPEED + self.speed_boost
         current_jump = JUMP_STRENGTH + self.jump_boost
 
-        if keys[pygame.K_a] or keys[pygame.K_LEFT]: dx = -current_speed
-        if keys[pygame.K_d] or keys[pygame.K_RIGHT]: dx = current_speed
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+            dx = -current_speed
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+            dx = current_speed
 
         if self.on_ground and self.current_platform:
             if self.current_platform.move_dist > 0:
@@ -290,8 +301,10 @@ class Player(pygame.sprite.Sprite):
         self.rect.x += dx
         for platform in platforms:
             if self.rect.colliderect(platform.rect):
-                if dx > 0: self.rect.right = platform.rect.left
-                elif dx < 0: self.rect.left = platform.rect.right
+                if dx > 0:
+                    self.rect.right = platform.rect.left
+                elif dx < 0:
+                    self.rect.left = platform.rect.right
 
         self.rect.y += dy
         self.on_ground = False
@@ -335,7 +348,8 @@ class Player(pygame.sprite.Sprite):
             if getattr(self, 'jump_boost', 0) != 0:
                 palette.append(ITEM_GOLD)
             color = random.choice(palette)
-            self.particles.append({'x': px, 'y': py, 'vx': vx, 'vy': vy, 'life': life, 'max_life': life, 'size': size, 'color': color})
+            self.particles.append({'x': px, 'y': py, 'vx': vx, 'vy': vy,
+                                  'life': life, 'max_life': life, 'size': size, 'color': color})
             self.on_ground = False
             self.is_alive = True
             self.speed_boost = 0
@@ -522,6 +536,7 @@ class Player(pygame.sprite.Sprite):
                 self.gold += 1
             except Exception:
                 self.gold = getattr(self, 'gold', 0) + 1
+
     def merge_with_item(self, item_type):
         if item_type == "speed":
             self.speed_boost = 5
@@ -540,6 +555,7 @@ class Player(pygame.sprite.Sprite):
     def draw(self, surface, camera_x):
         draw_x = self.rect.x - camera_x
         draw_y = self.rect.y
+
     def draw(self, surface, camera_x):
         draw_x = self.rect.x - camera_x
         draw_y = self.rect.y
@@ -594,7 +610,7 @@ class Player(pygame.sprite.Sprite):
                              (gh+12-h)//2 - 6), special_flags=pygame.BLEND_ADD)
             if getattr(self, 'jump_boost', 0) != 0 and glow_fade > 0:
                 gw, gh = img.get_size()
-                
+
                 pad = 10
                 glow_w, glow_h = gw + pad, gh + pad
                 glow2 = pygame.Surface(
@@ -619,7 +635,6 @@ class Player(pygame.sprite.Sprite):
             surface.blit(img, (img_x, img_y))
             return
 
-        
         if getattr(self, 'speed_boost', 0) > 0:
             w, h = self.rect.size
             layers = [(w+8, h+8, 110), (w+4, h+4, 70)]
@@ -633,7 +648,7 @@ class Player(pygame.sprite.Sprite):
 
         if getattr(self, 'jump_boost', 0) != 0:
             w, h = self.rect.size
-            
+
             pad = 8
             glow_w, glow_h = w + pad * 2, h + pad * 2
             halo = pygame.Surface(
