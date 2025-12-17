@@ -93,8 +93,9 @@ def main():
     win_title_font = pygame.font.SysFont("arial", 72, bold=True)
 
     current_level = 1
-
     player = Player(50, SCREEN_HEIGHT - 150)
+    # Track total player deaths during this run
+    death_count = 0
     platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
         current_level)
 
@@ -236,6 +237,12 @@ def main():
                 except Exception:
                     pass
 
+                # increment death counter
+                try:
+                    death_count += 1
+                except Exception:
+                    pass
+
                 try:
                     pygame.mixer.music.pause()
                 except Exception:
@@ -350,6 +357,19 @@ def main():
                     gold_text = font.render(
                         f"Gold: {getattr(player, 'gold', 0)}", True, ITEM_GOLD)
                     screen.blit(gold_text, (10, 50))
+                except Exception:
+                    pass
+
+            try:
+                # Show deaths counter below Gold
+                death_surf = render_text_with_outline(
+                    font, f"Deaths: {death_count}", WHITE, outline_color=BLACK, outline_width=1)
+                screen.blit(death_surf, (10, 90))
+            except Exception:
+                try:
+                    death_text = font.render(
+                        f"Deaths: {death_count}", True, WHITE)
+                    screen.blit(death_text, (10, 90))
                 except Exception:
                     pass
 
