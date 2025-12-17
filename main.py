@@ -3,7 +3,7 @@ import sys
 from settings import *
 from player import Player
 from levels import create_level
-from menu import draw_menu, handle_menu_events
+from menu import draw_menu, handle_menu_events 
 
 def load_level_data(level_num):
     platforms, enemies, items, goal, bg_file = create_level(level_num)
@@ -24,6 +24,7 @@ def main():
     font = pygame.font.SysFont("arial", 36)
     
     menu_font = pygame.font.SysFont("arial", 48, bold=True) 
+    win_title_font = pygame.font.SysFont("arial", 72, bold=True)
 
     current_level = 1
     
@@ -37,25 +38,42 @@ def main():
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                running = False    
+                running = False 
 
             game_state = handle_menu_events(event, game_state, SCREEN_WIDTH, SCREEN_HEIGHT)
             
             if event.type == pygame.KEYDOWN:
                 if game_state != "MENU":
                     if event.key == pygame.K_r:
-                        if game_state == "GAME_OVER":
+                        # --- UPDATED RESTART LOGIC ---
+                        if game_state == "GAME_WIN":
+                            # Restart from GAME_WIN resets to Level 1
+                            current_level = 1
                             player = Player(50, SCREEN_HEIGHT - 150)
                             platforms, enemies, items, goal, background_img, bg_file = load_level_data(current_level)
                             camera_x = 0
                             game_state = "PLAYING"
+                        
+                        elif game_state == "GAME_OVER":
+                            # Restart from GAME_OVER only reloads the *current* level
+                            # current_level is NOT reset to 1
+                            player = Player(50, SCREEN_HEIGHT - 150)
+                            platforms, enemies, items, goal, background_img, bg_file = load_level_data(current_level)
+                            camera_x = 0
+                            game_state = "PLAYING"
+
                         elif game_state == "LEVEL_COMPLETE":
-                            current_level += 1
-                            if current_level > 4: current_level = 1
-                            player = Player(50, SCREEN_HEIGHT - 150)
-                            platforms, enemies, items, goal, background_img, bg_file = load_level_data(current_level)
-                            camera_x = 0
-                            game_state = "PLAYING"
+                            if current_level >= 4: 
+                                game_state = "GAME_WIN" 
+                            else:
+                                current_level += 1
+                                player = Player(50, SCREEN_HEIGHT - 150)
+                                platforms, enemies, items, goal, background_img, bg_file = load_level_data(current_level)
+                                camera_x = 0
+                                game_state = "PLAYING"
+                    elif event.key == pygame.K_q and game_state == "GAME_WIN":
+                        running = False
+
 
         if game_state == "PLAYING":
             keys = pygame.key.get_pressed()
@@ -90,6 +108,7 @@ def main():
                 game_state = "GAME_OVER"
 
         
+        
         if game_state == "MENU":
             draw_menu(screen, menu_font, font, SCREEN_WIDTH, SCREEN_HEIGHT, GREEN, WHITE, BLACK)
             
@@ -104,24 +123,38 @@ def main():
             for e in enemies: e.draw(screen, camera_x)
             goal.draw(screen, camera_x)
             
-            # Always draw the player so death animation can play when dead
-            player.draw(screen, camera_x)
+            if player.is_alive and game_state != "GAME_WIN": 
+                player.draw(screen, camera_x)
 
             if game_state == "GAME_OVER":
                 text = font.render("DIED! Press 'R' to Restart", True, BRICK_RED)
                 screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2))
+            
             elif game_state == "LEVEL_COMPLETE":
                 text = font.render(f"LEVEL {current_level} DONE! Press 'R'", True, FLAG_GREEN)
                 screen.blit(text, (SCREEN_WIDTH//2 - text.get_width()//2, SCREEN_HEIGHT//2))
+            
+            elif game_state == "GAME_WIN":
+                overlay = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+                overlay.fill((0, 0, 0, 180)) 
+                screen.blit(overlay, (0, 0))
+                
+                win_text = win_title_font.render("YOU WON!", True, ITEM_GOLD)
+                screen.blit(win_text, win_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 3)))
+
+                prompt_text = font.render("Press 'R' to Restart Game or 'Q' to Quit", True, WHITE)
+                screen.blit(prompt_text, prompt_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
+
 
             info = font.render(f"Level: {current_level}", True, WHITE)
             screen.blit(info, (10, 10))
-            # Gold counter
+            
             try:
                 gold_text = font.render(f"Gold: {player.gold}", True, ITEM_GOLD)
             except Exception:
                 gold_text = font.render("Gold: 0", True, ITEM_GOLD)
             screen.blit(gold_text, (10, 50))
+
 
         pygame.display.update()
         clock.tick(FPS)
