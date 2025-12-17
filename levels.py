@@ -28,14 +28,14 @@ def create_level(level_number):
         enemies.add(Enemy(500, 530, 150))
         enemies.add(Enemy(1100, 370, 120))
         enemies.add(Enemy(300, 200, 100))
-        # extra ground enemies for more challenge
+        
         enemies.add(Enemy(950, 530, 140))
-        # flying enemies (use assets/flyer.png)
+        
         enemies.add(FlyingEnemy(700, 260, 180, amplitude=26, osc_speed=0.09))
         enemies.add(FlyingEnemy(1300, 220, 160, amplitude=18, osc_speed=0.14))
 
         items.add(Item(650, 220, "speed"))
-        # coins across platforms
+        
         items.add(Item(210, 420, "coin"))
         items.add(Item(500, 320, "coin"))
         items.add(Item(850, 270, "coin"))
@@ -50,12 +50,12 @@ def create_level(level_number):
         enemies.add(Enemy(250, 420, 120))
         platforms.add(Platform(600, 350, 150, 20, move_x=200, speed=3))
         enemies.add(Enemy(600, 320, 120))
-        # add some low-floor enemies
+        
         enemies.add(Enemy(350, 530, 100))
         enemies.add(FlyingEnemy(900, 280, 220, amplitude=28, osc_speed=0.085))
         platforms.add(Platform(1000, 400, 500, 40, GROUND_BROWN))
         items.add(Item(325, 420, "jump"))
-        # coins
+        
         items.add(Item(50, SCREEN_HEIGHT - 80, "coin"))
         items.add(Item(325, 380, "coin"))
         items.add(Item(600, 320, "coin"))
@@ -69,7 +69,7 @@ def create_level(level_number):
         platforms.add(Platform(700, 200, 100, 20, move_x=300, speed=4))
         enemies.add(Enemy(600, 530, 100))
         enemies.add(Enemy(800, 530, 100))
-        # additional low-floor enemies
+        
         enemies.add(Enemy(1000, 530, 120))
         enemies.add(Enemy(1400, 530, 140))
         enemies.add(FlyingEnemy(1400, 300, 280, amplitude=36, osc_speed=0.07))
@@ -88,7 +88,7 @@ def create_level(level_number):
         platforms.add(Platform(800, 350, 50, 20, move_x=100))
         platforms.add(Platform(1200, 350, 50, 20, move_x=100))
         items.add(Item(200, 530, "speed"))
-        # spread coins through the longer level
+        
         items.add(Item(400, 320, "coin"))
         items.add(Item(800, 320, "coin"))
         items.add(Item(1200, 320, "coin"))
@@ -101,9 +101,8 @@ def create_level(level_number):
     except Exception:
         background = None
 
-    # Ensure non-flying enemies sit on the ground or on a platform below their start_x
     for enemy in list(enemies):
-        # skip flyers
+        
         if isinstance(enemy, FlyingEnemy):
             continue
 
@@ -121,7 +120,7 @@ def create_level(level_number):
         if platform_under:
             enemy.rect.y = platform_under.rect.top - enemy.rect.height
         else:
-            # default to ground level (assume ground at SCREEN_HEIGHT - 40)
+            
             enemy.rect.y = SCREEN_HEIGHT - 40 - enemy.rect.height
 
     return platforms, enemies, items, goal, background

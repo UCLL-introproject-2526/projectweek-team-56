@@ -10,12 +10,12 @@ DARK_BLUE = (0, 40, 180)
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        # try png first, then jpg/jpeg to support both
+        
         loaded = False
         for fn in ("assets/player.png", "assets/player.jpg", "assets/player.jpeg"):
             try:
                 img = pygame.image.load(fn)
-                # stretch slightly wider for a wider player look
+                
                 img = pygame.transform.scale(img, (40, 40))
                 self.image = img.convert_alpha()
                 self.has_image = True
@@ -233,12 +233,12 @@ DARK_BLUE = (0, 40, 180)
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        # try png first, then jpg/jpeg to support both
+        
         loaded = False
         for fn in ("assets/player.png", "assets/player.jpg", "assets/player.jpeg"):
             try:
                 img = pygame.image.load(fn)
-                # stretch slightly wider for a wider player look
+                
                 img = pygame.transform.scale(img, (40, 40))
                 self.image = img.convert_alpha()
                 self.has_image = True
@@ -594,7 +594,7 @@ class Player(pygame.sprite.Sprite):
                              (gh+12-h)//2 - 6), special_flags=pygame.BLEND_ADD)
             if getattr(self, 'jump_boost', 0) != 0 and glow_fade > 0:
                 gw, gh = img.get_size()
-                # subtle multi-layer radial glow during death
+                
                 pad = 10
                 glow_w, glow_h = gw + pad, gh + pad
                 glow2 = pygame.Surface(
@@ -619,7 +619,7 @@ class Player(pygame.sprite.Sprite):
             surface.blit(img, (img_x, img_y))
             return
 
-        # active (alive) glow effects: tight border around player
+        
         if getattr(self, 'speed_boost', 0) > 0:
             w, h = self.rect.size
             layers = [(w+8, h+8, 110), (w+4, h+4, 70)]
@@ -633,7 +633,7 @@ class Player(pygame.sprite.Sprite):
 
         if getattr(self, 'jump_boost', 0) != 0:
             w, h = self.rect.size
-            # make glow tighter so it reaches the player's border
+            
             pad = 8
             glow_w, glow_h = w + pad * 2, h + pad * 2
             halo = pygame.Surface(

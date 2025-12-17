@@ -5,11 +5,11 @@ from settings import *
 class Goal(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
-        # try to load an exit image; fall back to simple green rectangle
+        
         img = None
         try:
             img = pygame.image.load("assets/exit.png").convert_alpha()
-            # expand the image: make it wider while preserving aspect ratio
+            
             iw, ih = img.get_size()
             target_w = 40
             scale = target_w / float(max(1, iw))
@@ -21,7 +21,7 @@ class Goal(pygame.sprite.Sprite):
         if img:
             self.image = img
         else:
-            # fallback: wider green door
+            
             self.image = pygame.Surface((40, 100))
             self.image.fill(FLAG_GREEN)
 

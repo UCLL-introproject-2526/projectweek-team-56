@@ -18,15 +18,15 @@ def load_level_data(level_num):
         except Exception:
             background_img = None
 
-    # Calculate Level Width: Find the rightmost edge of all platforms and the goal
-    level_width = SCREEN_WIDTH  # Default minimum width
+    
+    level_width = SCREEN_WIDTH  
     all_sprites = list(platforms) + list(enemies) + [goal]
     if all_sprites:
-        # Find the maximum x-coordinate (right edge)
+        
         max_x = max(s.rect.right for s in all_sprites if hasattr(s, 'rect'))
         level_width = max(level_width, max_x)
 
-    # Note: We now return level_width
+    
     return platforms, enemies, items, goal, background_img, bg_file, level_width
 
 
@@ -37,7 +37,7 @@ def main():
         pygame.mixer.music.load("music/background.mp3")
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
-        # one-shot death sound (optional), jump sound and goal sound
+       
         death_sfx = None
         jump_sfx = None
         goal_sfx = None
@@ -57,7 +57,7 @@ def main():
             except Exception:
                 jump_sfx = None
         try:
-            # prefer an mp3 goal music, fallback to wav in assets
+            
             try:
                 goal_sfx = pygame.mixer.Sound("music/goal.mp3")
             except Exception:
@@ -74,7 +74,7 @@ def main():
         except Exception:
             goal_sfx = None
         try:
-            # coin pickup sound (prefer mp3 then wav)
+            
             for fname in ("music/coin.mp3", "music/coin.wav", "assets/coin.mp3", "assets/coin.wav"):
                 try:
                     coin_sfx = pygame.mixer.Sound(fname)
@@ -96,7 +96,7 @@ def main():
 
     current_level = 1
 
-    # Receive level_width from load_level_data
+
     player = Player(50, SCREEN_HEIGHT - 150)
     platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
         current_level)
@@ -119,7 +119,7 @@ def main():
                         if game_state == "GAME_WIN":
                             current_level = 1
                             player = Player(50, SCREEN_HEIGHT - 150)
-                            # Re-receive level_width
+                            
                             platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                 current_level)
                             camera_x = 0
@@ -131,7 +131,7 @@ def main():
 
                         elif game_state == "GAME_OVER":
                             player = Player(50, SCREEN_HEIGHT - 150)
-                            # Re-receive level_width
+                            
                             platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                 current_level)
                             camera_x = 0
@@ -147,7 +147,7 @@ def main():
                             else:
                                 current_level += 1
                                 player = Player(50, SCREEN_HEIGHT - 150)
-                                # Re-receive level_width
+                                
                                 platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                     current_level)
                                 camera_x = 0
@@ -156,7 +156,7 @@ def main():
                                 except Exception:
                                     pass
                                 game_state = "PLAYING"
-                    # Play jump sound on keydown when jumping from ground
+                    
                     elif event.key == pygame.K_SPACE:
                         try:
                             if jump_sfx and getattr(player, 'on_ground', False):
@@ -173,26 +173,25 @@ def main():
             platforms.update()
             player.update(keys, platforms)
 
-            # --- NEW: World Boundary Check (Clamping Player Position) ---
-            # 1. Left Boundary (World X = 0)
+            
             if player.rect.left < 0:
                 player.rect.left = 0
 
-            # 2. Right Boundary (World X = level_width)
+           
             if player.rect.right > level_width:
                 player.rect.right = level_width
 
-            # --- Camera Logic Updated to respect Level Width ---
+           
             target_camera_x = player.rect.centerx - SCREEN_WIDTH // 2
 
-            # Clamp target_camera_x to prevent showing areas left of the start (0)
+            
             if target_camera_x < 0:
                 target_camera_x = 0
 
-            # Clamp the camera to the maximum possible right position
+            
             max_camera_x = level_width - SCREEN_WIDTH
             if max_camera_x < 0:
-                max_camera_x = 0  # If level is smaller than screen
+                max_camera_x = 0  
 
             if target_camera_x > max_camera_x:
                 target_camera_x = max_camera_x
@@ -219,7 +218,7 @@ def main():
             for item in hit_items:
                 t = getattr(item, 'type', None)
                 player.merge_with_item(t)
-                # play coin sound when collecting a coin
+                
                 try:
                     if t == 'coin' and coin_sfx:
                         coin_sfx.play()
@@ -228,7 +227,7 @@ def main():
                 item.kill()
 
             if player.rect.colliderect(goal.rect):
-                # play once when first reaching the goal
+                
                 if game_state != "LEVEL_COMPLETE":
                     try:
                         if goal_sfx:
@@ -238,13 +237,13 @@ def main():
                 game_state = "LEVEL_COMPLETE"
 
             if not player.is_alive:
-                # play death sound if available, then go to GAME_OVER
+                
                 try:
                     if death_sfx:
                         death_sfx.play()
                 except Exception:
                     pass
-                # pause background music on death
+                
                 try:
                     pygame.mixer.music.pause()
                 except Exception:
@@ -338,7 +337,7 @@ def main():
                     except Exception:
                         pass
 
-            # Level info with outline
+            
             try:
                 info_surf = render_text_with_outline(
                     font, f"Level: {current_level}", WHITE, outline_color=BLACK, outline_width=1)
@@ -350,7 +349,7 @@ def main():
                 except Exception:
                     pass
 
-            # Gold with outline (fallback to plain render)
+            
             try:
                 gold_val = getattr(player, 'gold', 0)
                 gold_surf = render_text_with_outline(

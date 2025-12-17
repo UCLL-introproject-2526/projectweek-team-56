@@ -8,7 +8,7 @@ ACCENT_CYAN = (0, 190, 255)
 HOVER_CYAN = (0, 230, 255)
 BUTTON_BORDER_COLOR = BLACK
 
-# cached background image for the menu
+
 _menu_bg = None
 
 
@@ -19,7 +19,7 @@ def draw_menu(screen, title_font, button_font, screen_width, screen_height, titl
     """
 
     global _menu_bg
-    # draw background image if available, otherwise fallback to solid color
+    
     if _menu_bg is None:
         try:
             for path in ("assets/menu.jpeg", "assets/menu.jpg", "music/menu.jpeg", "music/menu.jpg"):

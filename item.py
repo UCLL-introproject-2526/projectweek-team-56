@@ -5,7 +5,7 @@ class Item(pygame.sprite.Sprite):
     def __init__(self, x, y, type):
         super().__init__()
         self.type = type
-        # visual for different item types
+        
         if self.type == "speed":
             self.image = pygame.Surface((20, 20), pygame.SRCALPHA)
             self.image.fill(ITEM_BLUE)
@@ -13,7 +13,7 @@ class Item(pygame.sprite.Sprite):
             self.image = pygame.Surface((20, 20), pygame.SRCALPHA)
             self.image.fill(ITEM_GOLD)
         elif self.type == "coin":
-            # draw a small gold coin
+            
             self.image = pygame.Surface((16, 16), pygame.SRCALPHA)
             pygame.draw.circle(self.image, ITEM_GOLD, (8, 8), 7)
             pygame.draw.circle(self.image, (220,180,0), (8, 8), 5)
