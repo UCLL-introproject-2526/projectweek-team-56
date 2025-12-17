@@ -1,4 +1,5 @@
 import pygame
+from text_utils import render_text_with_outline
 
 def create_special_banner():
     pygame.init()
@@ -30,7 +31,7 @@ def create_special_banner():
     plat_rect = pygame.Rect(320, 200, 160, 20)
     pygame.draw.rect(surface, PLATFORM_GRAY, plat_rect)
     font_arrow = pygame.font.SysFont("arial", 20, bold=True)
-    arrow = font_arrow.render("<   MOVING   >", True, (50, 50, 50))
+    arrow = render_text_with_outline(font_arrow, "<   MOVING   >", (50, 50, 50), (0,0,0), 1)
     surface.blit(arrow, (335, 198))
 
 
@@ -38,7 +39,7 @@ def create_special_banner():
     pygame.draw.rect(surface, PLAYER_RED, p_rect)
     pygame.draw.rect(surface, (255, 255, 255), (65, HEIGHT-95, 8, 8))
     font_small = pygame.font.SysFont("arial", 14)
-    lbl_norm = font_small.render("Normal", True, (255, 255, 255))
+    lbl_norm = render_text_with_outline(font_small, "Normal", (255, 255, 255), (0,0,0), 1)
     surface.blit(lbl_norm, (45, HEIGHT-55))
 
     p_speed_rect = pygame.Rect(200, HEIGHT-100, 30, 40)
@@ -46,14 +47,14 @@ def create_special_banner():
     pygame.draw.line(surface, (255, 255, 255), (160, HEIGHT-80), (190, HEIGHT-80), 2)
     pygame.draw.rect(surface, PLAYER_BLUE, p_speed_rect)
     pygame.draw.rect(surface, (255, 255, 255), (215, HEIGHT-95, 8, 8))
-    lbl_spd = font_small.render("Speed Boost", True, PLAYER_BLUE)
+    lbl_spd = render_text_with_outline(font_small, "Speed Boost", PLAYER_BLUE, (0,0,0), 1)
     surface.blit(lbl_spd, (180, HEIGHT-55))
 
     p_jump_rect = pygame.Rect(380, 140, 30, 40)
     pygame.draw.rect(surface, PLAYER_GOLD, p_jump_rect)
     pygame.draw.rect(surface, (255, 255, 255), (395, 145, 8, 8))
     pygame.draw.circle(surface, (255, 255, 200), (380, 140), 5)
-    lbl_jmp = font_small.render("Jump Boost", True, (255, 200, 0))
+    lbl_jmp = render_text_with_outline(font_small, "Jump Boost", (255, 200, 0), (0,0,0), 1)
     surface.blit(lbl_jmp, (360, 120))
 
 
@@ -65,14 +66,12 @@ def create_special_banner():
         sub_font = pygame.font.SysFont(None, 30)
 
     text_main = "SUPER PYGAME PRO"
-    text_shadow = title_font.render(text_main, True, SHADOW)
-    text_color = title_font.render(text_main, True, (255, 255, 255))
+    text_color = render_text_with_outline(title_font, text_main, (255,255,255), (0,0,0), 1)
     
     center_x = 620
-    surface.blit(text_shadow, (center_x - text_shadow.get_width()//2 + 3, 53))
     surface.blit(text_color, (center_x - text_color.get_width()//2, 50))
 
-    text_sub = sub_font.render("ADVANCED PHYSICS • TEAM 56", True, (50, 50, 50))
+    text_sub = render_text_with_outline(sub_font, "ADVANCED PHYSICS • TEAM 56", (50, 50, 50), (0,0,0), 1)
     surface.blit(text_sub, (center_x - text_sub.get_width()//2, 110))
 
     features = [
@@ -83,7 +82,7 @@ def create_special_banner():
     
     start_y = 160
     for feat in features:
-        f_surf = font_small.render(feat, True, (20, 20, 20))
+        f_surf = render_text_with_outline(font_small, feat, (20, 20, 20), (0,0,0), 1)
         surface.blit(f_surf, (550, start_y))
         start_y += 20
 

@@ -1,5 +1,6 @@
 import pygame
 import sys
+from text_utils import render_text_with_outline
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -18,13 +19,8 @@ def draw_menu(screen, title_font, button_font, screen_width, screen_height, titl
     screen.fill(DEEP_RED)
 
     
-    title_text = title_font.render("MERGING MARIO", True, WHITE) 
+    title_text = render_text_with_outline(title_font, "MERGING MARIO", title_color, BLACK, 1)
     title_rect = title_text.get_rect(center=(screen_width // 2, screen_height // 4))
-
-    for dx, dy in [(-3, -3), (3, -3), (-3, 3), (3, 3)]:
-        screen.blit(title_font.render("MERGING MARIO", True, BLACK), 
-                    (title_rect.x + dx, title_rect.y + dy))
-
     screen.blit(title_text, title_rect)
 
 
@@ -47,7 +43,7 @@ def draw_menu(screen, title_font, button_font, screen_width, screen_height, titl
     
     pygame.draw.rect(screen, BUTTON_BORDER_COLOR, start_button_rect, 5, border_radius=15)
 
-    start_text = button_font.render("START GAME", True, BLACK)
+    start_text = render_text_with_outline(button_font, "START GAME", button_text_color, BLACK, 1)
     start_text_rect = start_text.get_rect(center=start_button_rect.center)
     screen.blit(start_text, start_text_rect)
 
@@ -63,7 +59,7 @@ def draw_menu(screen, title_font, button_font, screen_width, screen_height, titl
     pygame.draw.rect(screen, bg_color, quit_button_rect, border_radius=15)
     
     pygame.draw.rect(screen, BUTTON_BORDER_COLOR, quit_button_rect, 5, border_radius=15) 
-    quit_text = button_font.render("QUIT", True, BLACK)
+    quit_text = render_text_with_outline(button_font, "QUIT", button_text_color, BLACK, 1)
     quit_text_rect = quit_text.get_rect(center=quit_button_rect.center)
     screen.blit(quit_text, quit_text_rect)
     
