@@ -6,6 +6,7 @@ from settings import *
 DARK_BLUE = (0, 40, 180)
 
 
+
 class Player(pygame.sprite.Sprite):
     def __init__(self, x, y):
         super().__init__()
@@ -36,6 +37,7 @@ class Player(pygame.sprite.Sprite):
     def update(self, keys, platforms):
         dx = 0
         dy = 0
+
 
         current_speed = PLAYER_SPEED + self.speed_boost
         current_jump = JUMP_STRENGTH + self.jump_boost
@@ -83,6 +85,7 @@ class Player(pygame.sprite.Sprite):
 
         if not self.is_alive and not self.death_started:
             self.start_death()
+
         # advance glow phase for pulsing effect
         try:
             self.glow_phase += 0.12
@@ -304,7 +307,24 @@ class Player(pygame.sprite.Sprite):
                 self.gold += 1
             except Exception:
                 self.gold = getattr(self, 'gold', 0) + 1
+    def merge_with_item(self, item_type):
+        if item_type == "speed":
+            self.speed_boost = 5
+            if not getattr(self, 'has_image', False):
+                self.image.fill(ITEM_BLUE)
+        elif item_type == "jump":
+            self.jump_boost = -5
+            if not getattr(self, 'has_image', False):
+                self.image.fill(ITEM_GOLD)
+        elif item_type == "coin":
+            try:
+                self.gold += 1
+            except Exception:
+                self.gold = getattr(self, 'gold', 0) + 1
 
+    def draw(self, surface, camera_x):
+        draw_x = self.rect.x - camera_x
+        draw_y = self.rect.y
     def draw(self, surface, camera_x):
         draw_x = self.rect.x - camera_x
         draw_y = self.rect.y
