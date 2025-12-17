@@ -12,7 +12,6 @@ class Enemy(pygame.sprite.Sprite):
         except Exception:
             base = pygame.Surface((30, 30), pygame.SRCALPHA)
             base.fill(ENEMY_PURPLE)
-            # simple eyes so the fallback has a face that can flip
             pygame.draw.circle(base, (255, 255, 255), (8, 10), 3)
             pygame.draw.circle(base, (255, 255, 255), (22, 10), 3)
             pygame.draw.circle(base, (0, 0, 0), (8, 10), 1)
@@ -33,7 +32,6 @@ class Enemy(pygame.sprite.Sprite):
         elif self.rect.x < self.start_x:
             self.direction = 1
 
-        # Flip image when direction changes so the face looks toward movement
         if self.direction != getattr(self, 'facing', 1):
             self.facing = self.direction
             if self.facing < 0:

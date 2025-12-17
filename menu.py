@@ -62,8 +62,7 @@ def draw_menu(screen, title_font, button_font, screen_width, screen_height, titl
 
     pygame.draw.rect(screen, bg_color, quit_button_rect, border_radius=15)
     
-    pygame.draw.rect(screen, BUTTON_BORDER_COLOR, quit_button_rect, 5, border_radius=15) # <--- CHANGED TO BLACK
-    
+    pygame.draw.rect(screen, BUTTON_BORDER_COLOR, quit_button_rect, 5, border_radius=15) 
     quit_text = button_font.render("QUIT", True, BLACK)
     quit_text_rect = quit_text.get_rect(center=quit_button_rect.center)
     screen.blit(quit_text, quit_text_rect)

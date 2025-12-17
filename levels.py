@@ -1,6 +1,5 @@
 import pygame
 from settings import *
-# Yeni importlar:
 from platforms import Platform
 from enemy import Enemy
 from item import Item
@@ -62,7 +61,6 @@ def create_level(level_number):
         items.add(Item(200, 530, "speed"))
         goal = Goal(2800, SCREEN_HEIGHT - 40)
 
-    # pick a background image filename for this level (optional)
     try:
         background = LEVEL_BACKGROUNDS.get(level_number)
     except Exception:

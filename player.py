@@ -2,7 +2,7 @@ import pygame
 import random
 from settings import *
 
-# Slightly darker blue for visibility against light backgrounds
+
 DARK_BLUE = (0, 40, 180)
 
 class Player(pygame.sprite.Sprite):
@@ -24,7 +24,7 @@ class Player(pygame.sprite.Sprite):
         self.speed_boost = 0
         self.jump_boost = 0
         self.current_platform = None
-        # Death animation state
+
         self.death_timer = 0
         self.death_duration = 60
         self.death_started = False
@@ -74,7 +74,7 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y > SCREEN_HEIGHT + 100:
             self.is_alive = False
 
-        # ensure death state is initialized if death occurs during update()
+
         if not self.is_alive and not self.death_started:
             self.start_death()
 
@@ -112,17 +112,13 @@ class Player(pygame.sprite.Sprite):
     def draw(self, surface, camera_x):
         draw_x = self.rect.x - camera_x
         draw_y = self.rect.y
-        # If player has died, draw particles and advance death animation
+
         if not self.is_alive:
-            # ensure particles/init exist if death started elsewhere
             if not self.death_started:
                 self.start_death()
-            # advance death timer so animation progresses even when update() isn't called
             self.death_timer += 1
             prog = min(1.0, self.death_timer / max(1, self.death_duration))
-            # update and draw particles (they were created in start_death())
             for p in self.particles[:]:
-                # float upward and disperse
                 p['vy'] -= 0.12
                 p['x'] += p['vx'] * 0.6
                 p['y'] += p['vy']
@@ -142,7 +138,6 @@ class Player(pygame.sprite.Sprite):
                 pygame.draw.circle(surf, col, (s, s), s)
                 surface.blit(surf, (p['x'] - camera_x - s, p['y'] - s))
 
-            # compute transformed image (scale down, rotate, fade out, float up)
             w, h = self.rect.size
             scale = max(0.2, 1.0 - 0.8 * prog)
             new_w = max(1, int(w * scale))
@@ -152,7 +147,6 @@ class Player(pygame.sprite.Sprite):
             img = pygame.transform.rotate(img, angle)
             alpha = int(255 * (1.0 - prog))
             img.set_alpha(alpha)
-            # draw faded glows behind dying player (fade with prog)
             glow_fade = int(200 * (1.0 - prog))
             if getattr(self, 'speed_boost', 0) > 0 and glow_fade > 0:
                 gw, gh = img.get_size()
@@ -164,13 +158,11 @@ class Player(pygame.sprite.Sprite):
                 glow2 = pygame.Surface((gw + 46, gh + 46), pygame.SRCALPHA)
                 pygame.draw.ellipse(glow2, (*ITEM_GOLD, int(glow_fade*0.9)), glow2.get_rect())
                 surface.blit(glow2, (draw_x - (gw+46-w)//2 - 23, draw_y - (gh+46-h)//2 - 23), special_flags=pygame.BLEND_ADD)
-            # position adjusted to float up as it fades
             float_up = int(40 * prog)
             img_x = draw_x + (w - img.get_width()) // 2
             img_y = draw_y - float_up + (h - img.get_height()) // 2
             surface.blit(img, (img_x, img_y))
             return
-        # Strong layered blue glow for speed boost (use darker tint for contrast)
         if getattr(self, 'speed_boost', 0) > 0:
             w, h = self.rect.size
             layers = [ (w+44, h+44, 80), (w+30, h+30, 140), (w+18, h+18, 220) ]
@@ -178,7 +170,6 @@ class Player(pygame.sprite.Sprite):
                 glow = pygame.Surface((sw, sh), pygame.SRCALPHA)
                 pygame.draw.ellipse(glow, (*DARK_BLUE, alpha), glow.get_rect())
                 surface.blit(glow, (draw_x - (sw-w)//2, draw_y - (sh-h)//2), special_flags=pygame.BLEND_ADD)
-        # Strong layered gold glow for jump boost
         if getattr(self, 'jump_boost', 0) != 0:
             w, h = self.rect.size
             layers2 = [ (w+50, h+50, 70), (w+34, h+34, 130), (w+20, h+20, 210) ]
