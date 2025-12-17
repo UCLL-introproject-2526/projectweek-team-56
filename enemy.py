@@ -4,6 +4,34 @@ import math
 from settings import *
 
 
+def _remove_bg_by_color(surface, sample_pos=(0, 0), thresh=60):
+    """Return a copy of `surface` with pixels similar to the sampled color made transparent.
+
+    This is a simple background remover useful for JPGs where a solid background
+    was used. It samples `sample_pos` (default top-left) and makes pixels whose
+    squared distance to that color is below `thresh` transparent.
+    """
+    surf = surface.convert_alpha()
+    w, h = surf.get_size()
+    try:
+        bg = surf.get_at(sample_pos)[:3]
+    except Exception:
+        bg = (255, 255, 255)
+    out = pygame.Surface((w, h), pygame.SRCALPHA)
+    thr2 = thresh * thresh
+    for x in range(w):
+        for y in range(h):
+            r, g, b, a = surf.get_at((x, y))
+            dr = r - bg[0]
+            dg = g - bg[1]
+            db = b - bg[2]
+            if dr * dr + dg * dg + db * db <= thr2:
+                # leave pixel transparent
+                continue
+            out.set_at((x, y), (r, g, b, a))
+    return out
+
+
 class Enemy(pygame.sprite.Sprite):
     def __init__(self, x, y, distance):
         super().__init__()
@@ -114,12 +142,24 @@ class FlyingEnemy(Enemy):
     def __init__(self, x, y, distance, amplitude=20, osc_speed=0.12):
         super().__init__(x, y, distance)
         # Prefer a dedicated flyer sprite when available
-        try:
-            img = pygame.image.load("assets/flyer.png")
-            img = pygame.transform.scale(img, (36, 24))
-            self.base_image = img.convert_alpha()
-            self.has_image = True
-        except Exception:
+        # Try multiple filenames so users can provide flyer.jpg instead of flyer.png
+        loaded = False
+        for fname in ("assets/flyer.png", "assets/flyer.jpg", "assets/flyer.jpeg"):
+            try:
+                img = pygame.image.load(fname)
+                img = pygame.transform.scale(img, (36, 24))
+                # If it's a JPG/JPEG, remove background by sampling corner color
+                if fname.lower().endswith(('.jpg', '.jpeg')):
+                    img = _remove_bg_by_color(img, sample_pos=(0, 0), thresh=60)
+                else:
+                    img = img.convert_alpha()
+                self.base_image = img
+                self.has_image = True
+                loaded = True
+                break
+            except Exception:
+                continue
+        if not loaded:
             # keep parent's base image if flyer asset missing
             pass
         self.image = self.base_image
