@@ -16,12 +16,21 @@ def load_level_data(level_num):
                 background_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
         except Exception:
             background_img = None
-    return platforms, enemies, items, goal, background_img, bg_file
+            
+    # Calculate Level Width: Find the rightmost edge of all platforms and the goal
+    level_width = SCREEN_WIDTH # Default minimum width
+    all_sprites = list(platforms) + list(enemies) + [goal]
+    if all_sprites:
+        # Find the maximum x-coordinate (right edge)
+        max_x = max(s.rect.right for s in all_sprites if hasattr(s, 'rect'))
+        level_width = max(level_width, max_x)
+
+    # Note: We now return level_width
+    return platforms, enemies, items, goal, background_img, bg_file, level_width
 
 
 def main():
     pygame.init()
-    # try to initialize audio and play looping background music (safe-fail)
     try:
         pygame.mixer.init()
         pygame.mixer.music.load("music/background.mp3")
@@ -39,8 +48,9 @@ def main():
 
     current_level = 1
 
+    # Receive level_width from load_level_data
     player = Player(50, SCREEN_HEIGHT - 150)
-    platforms, enemies, items, goal, background_img, bg_file = load_level_data(
+    platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
         current_level)
 
     camera_x = 0
@@ -58,21 +68,19 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if game_state != "MENU":
                     if event.key == pygame.K_r:
-                        # --- UPDATED RESTART LOGIC ---
                         if game_state == "GAME_WIN":
-                            # Restart from GAME_WIN resets to Level 1
                             current_level = 1
                             player = Player(50, SCREEN_HEIGHT - 150)
-                            platforms, enemies, items, goal, background_img, bg_file = load_level_data(
+                            # Re-receive level_width
+                            platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                 current_level)
                             camera_x = 0
                             game_state = "PLAYING"
 
                         elif game_state == "GAME_OVER":
-                            # Restart from GAME_OVER only reloads the *current* level
-                            # current_level is NOT reset to 1
                             player = Player(50, SCREEN_HEIGHT - 150)
-                            platforms, enemies, items, goal, background_img, bg_file = load_level_data(
+                            # Re-receive level_width
+                            platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                 current_level)
                             camera_x = 0
                             game_state = "PLAYING"
@@ -83,7 +91,8 @@ def main():
                             else:
                                 current_level += 1
                                 player = Player(50, SCREEN_HEIGHT - 150)
-                                platforms, enemies, items, goal, background_img, bg_file = load_level_data(
+                                # Re-receive level_width
+                                platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                     current_level)
                                 camera_x = 0
                                 game_state = "PLAYING"
@@ -95,10 +104,31 @@ def main():
 
             platforms.update()
             player.update(keys, platforms)
+            
+            # --- NEW: World Boundary Check (Clamping Player Position) ---
+            # 1. Left Boundary (World X = 0)
+            if player.rect.left < 0:
+                player.rect.left = 0
+                
+            # 2. Right Boundary (World X = level_width)
+            if player.rect.right > level_width:
+                player.rect.right = level_width
 
+
+            # --- Camera Logic Updated to respect Level Width ---
             target_camera_x = player.rect.centerx - SCREEN_WIDTH // 2
+            
+            # Clamp target_camera_x to prevent showing areas left of the start (0)
             if target_camera_x < 0:
                 target_camera_x = 0
+            
+            # Clamp the camera to the maximum possible right position
+            max_camera_x = level_width - SCREEN_WIDTH
+            if max_camera_x < 0: max_camera_x = 0 # If level is smaller than screen
+            
+            if target_camera_x > max_camera_x:
+                target_camera_x = max_camera_x
+                
             camera_x += (target_camera_x - camera_x) * 0.1
 
             for enemy in enemies:
@@ -106,11 +136,9 @@ def main():
 
             hit_list = pygame.sprite.spritecollide(player, enemies, False)
             for enemy in hit_list:
-                # ignore enemies that are already in their death animation
                 if getattr(enemy, 'death_started', False):
                     continue
                 if player.velocity_y > 0 and player.rect.bottom < enemy.rect.centery + 15:
-                    # start a death animation instead of immediate removal
                     if hasattr(enemy, 'start_death'):
                         enemy.start_death()
                     else:
@@ -155,13 +183,13 @@ def main():
                 text = font.render(
                     "DIED! Press 'R' to Restart", True, BRICK_RED)
                 screen.blit(text, (SCREEN_WIDTH//2 -
-                            text.get_width()//2, SCREEN_HEIGHT//2))
+                                   text.get_width()//2, SCREEN_HEIGHT//2))
 
             elif game_state == "LEVEL_COMPLETE":
                 text = font.render(
                     f"LEVEL {current_level} DONE! Press 'R'", True, FLAG_GREEN)
                 screen.blit(text, (SCREEN_WIDTH//2 -
-                            text.get_width()//2, SCREEN_HEIGHT//2))
+                                   text.get_width()//2, SCREEN_HEIGHT//2))
 
             elif game_state == "GAME_WIN":
                 overlay = pygame.Surface(
