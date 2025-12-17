@@ -1,5 +1,6 @@
 import pygame
 import random
+import math
 from settings import *
 
 
@@ -105,3 +106,53 @@ class Enemy(pygame.sprite.Sprite):
             color = random.choice([ENEMY_PURPLE, (255, 255, 255)])
             self.particles.append(
                 {'x': px, 'y': py, 'vx': vx, 'vy': vy, 'life': life, 'size': size, 'color': color})
+
+
+class FlyingEnemy(Enemy):
+    """A flying enemy that uses assets/flyer.png and bobs vertically while patrolling."""
+
+    def __init__(self, x, y, distance, amplitude=20, osc_speed=0.12):
+        super().__init__(x, y, distance)
+        # Prefer a dedicated flyer sprite when available
+        try:
+            img = pygame.image.load("assets/flyer.png")
+            img = pygame.transform.scale(img, (36, 24))
+            self.base_image = img.convert_alpha()
+            self.has_image = True
+        except Exception:
+            # keep parent's base image if flyer asset missing
+            pass
+        self.image = self.base_image
+
+        # vertical oscillation params
+        self.base_y = y
+        self.osc_amplitude = amplitude
+        self.osc_speed = osc_speed
+        self._osc_t = random.uniform(0, 2 * math.pi)
+
+    def update(self):
+        # if death animation running, let parent handle it
+        if self.death_started:
+            super().update()
+            return
+
+        # horizontal patrol motion
+        self.rect.x += self.direction * ENEMY_SPEED
+        if self.rect.x > self.start_x + self.distance:
+            self.direction = -1
+        elif self.rect.x < self.start_x:
+            self.direction = 1
+
+        # vertical bobbing (sinusoidal)
+        self._osc_t += self.osc_speed
+        bob = math.sin(self._osc_t) * self.osc_amplitude
+        self.rect.y = int(self.base_y + bob)
+
+        # flip sprite based on direction
+        if self.direction != getattr(self, 'facing', 1):
+            self.facing = self.direction
+            if self.facing < 0:
+                self.image = pygame.transform.flip(
+                    self.base_image, True, False)
+            else:
+                self.image = self.base_image
