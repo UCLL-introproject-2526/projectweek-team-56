@@ -18,15 +18,13 @@ def load_level_data(level_num):
         except Exception:
             background_img = None
 
-    
-    level_width = SCREEN_WIDTH  
+    level_width = SCREEN_WIDTH
     all_sprites = list(platforms) + list(enemies) + [goal]
     if all_sprites:
-        
+
         max_x = max(s.rect.right for s in all_sprites if hasattr(s, 'rect'))
         level_width = max(level_width, max_x)
 
-    
     return platforms, enemies, items, goal, background_img, bg_file, level_width
 
 
@@ -37,7 +35,7 @@ def main():
         pygame.mixer.music.load("music/background.mp3")
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
-       
+
         death_sfx = None
         jump_sfx = None
         goal_sfx = None
@@ -57,7 +55,7 @@ def main():
             except Exception:
                 jump_sfx = None
         try:
-            
+
             try:
                 goal_sfx = pygame.mixer.Sound("music/goal.mp3")
             except Exception:
@@ -74,7 +72,7 @@ def main():
         except Exception:
             goal_sfx = None
         try:
-            
+
             for fname in ("music/coin.mp3", "music/coin.wav", "assets/coin.mp3", "assets/coin.wav"):
                 try:
                     coin_sfx = pygame.mixer.Sound(fname)
@@ -95,7 +93,6 @@ def main():
     win_title_font = pygame.font.SysFont("arial", 72, bold=True)
 
     current_level = 1
-
 
     player = Player(50, SCREEN_HEIGHT - 150)
     platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
@@ -119,7 +116,7 @@ def main():
                         if game_state == "GAME_WIN":
                             current_level = 1
                             player = Player(50, SCREEN_HEIGHT - 150)
-                            
+
                             platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                 current_level)
                             camera_x = 0
@@ -131,7 +128,7 @@ def main():
 
                         elif game_state == "GAME_OVER":
                             player = Player(50, SCREEN_HEIGHT - 150)
-                            
+
                             platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                 current_level)
                             camera_x = 0
@@ -147,7 +144,7 @@ def main():
                             else:
                                 current_level += 1
                                 player = Player(50, SCREEN_HEIGHT - 150)
-                                
+
                                 platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                     current_level)
                                 camera_x = 0
@@ -156,8 +153,8 @@ def main():
                                 except Exception:
                                     pass
                                 game_state = "PLAYING"
-                    
-                    elif event.key == pygame.K_SPACE:
+
+                    elif event.key in (pygame.K_w, pygame.K_SPACE, pygame.K_UP):
                         try:
                             if jump_sfx and getattr(player, 'on_ground', False):
                                 jump_sfx.play()
@@ -173,25 +170,20 @@ def main():
             platforms.update()
             player.update(keys, platforms)
 
-            
             if player.rect.left < 0:
                 player.rect.left = 0
 
-           
             if player.rect.right > level_width:
                 player.rect.right = level_width
 
-           
             target_camera_x = player.rect.centerx - SCREEN_WIDTH // 2
 
-            
             if target_camera_x < 0:
                 target_camera_x = 0
 
-            
             max_camera_x = level_width - SCREEN_WIDTH
             if max_camera_x < 0:
-                max_camera_x = 0  
+                max_camera_x = 0
 
             if target_camera_x > max_camera_x:
                 target_camera_x = max_camera_x
@@ -218,7 +210,7 @@ def main():
             for item in hit_items:
                 t = getattr(item, 'type', None)
                 player.merge_with_item(t)
-                
+
                 try:
                     if t == 'coin' and coin_sfx:
                         coin_sfx.play()
@@ -227,7 +219,7 @@ def main():
                 item.kill()
 
             if player.rect.colliderect(goal.rect):
-                
+
                 if game_state != "LEVEL_COMPLETE":
                     try:
                         if goal_sfx:
@@ -237,13 +229,13 @@ def main():
                 game_state = "LEVEL_COMPLETE"
 
             if not player.is_alive:
-                
+
                 try:
                     if death_sfx:
                         death_sfx.play()
                 except Exception:
                     pass
-                
+
                 try:
                     pygame.mixer.music.pause()
                 except Exception:
@@ -337,7 +329,6 @@ def main():
                     except Exception:
                         pass
 
-            
             try:
                 info_surf = render_text_with_outline(
                     font, f"Level: {current_level}", WHITE, outline_color=BLACK, outline_width=1)
@@ -349,7 +340,6 @@ def main():
                 except Exception:
                     pass
 
-            
             try:
                 gold_val = getattr(player, 'gold', 0)
                 gold_surf = render_text_with_outline(

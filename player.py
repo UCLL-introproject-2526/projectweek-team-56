@@ -50,14 +50,14 @@ class Player(pygame.sprite.Sprite):
         current_speed = PLAYER_SPEED + self.speed_boost
         current_jump = JUMP_STRENGTH + self.jump_boost
 
-        if keys[pygame.K_LEFT]: dx = -current_speed
-        if keys[pygame.K_RIGHT]: dx = current_speed
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]: dx = -current_speed
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]: dx = current_speed
 
         if self.on_ground and self.current_platform:
             if self.current_platform.move_dist > 0:
                 dx += self.current_platform.speed * self.current_platform.direction
 
-        if keys[pygame.K_SPACE] and self.on_ground:
+        if (keys[pygame.K_w] or keys[pygame.K_SPACE] or keys[pygame.K_UP]) and self.on_ground:
             self.velocity_y = current_jump
             self.on_ground = False
             self.current_platform = None
@@ -272,14 +272,14 @@ class Player(pygame.sprite.Sprite):
         current_speed = PLAYER_SPEED + self.speed_boost
         current_jump = JUMP_STRENGTH + self.jump_boost
 
-        if keys[pygame.K_LEFT]: dx = -current_speed
-        if keys[pygame.K_RIGHT]: dx = current_speed
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]: dx = -current_speed
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]: dx = current_speed
 
         if self.on_ground and self.current_platform:
             if self.current_platform.move_dist > 0:
                 dx += self.current_platform.speed * self.current_platform.direction
 
-        if keys[pygame.K_SPACE] and self.on_ground:
+        if (keys[pygame.K_w] or keys[pygame.K_SPACE]) and self.on_ground:
             self.velocity_y = current_jump
             self.on_ground = False
             self.current_platform = None
@@ -355,16 +355,16 @@ class Player(pygame.sprite.Sprite):
             current_speed = PLAYER_SPEED + self.speed_boost
             current_jump = JUMP_STRENGTH + self.jump_boost
 
-            if keys[pygame.K_LEFT]:
+            if keys[pygame.K_a] or keys[pygame.K_LEFT]:
                 dx = -current_speed
-            if keys[pygame.K_RIGHT]:
+            if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
                 dx = current_speed
 
             if self.on_ground and self.current_platform:
                 if self.current_platform.move_dist > 0:
                     dx += self.current_platform.speed * self.current_platform.direction
 
-            if keys[pygame.K_SPACE] and self.on_ground:
+            if (keys[pygame.K_w] or keys[pygame.K_SPACE] or keys[pygame.K_UP]) and self.on_ground:
                 self.velocity_y = current_jump
                 self.on_ground = False
                 self.current_platform = None
@@ -440,16 +440,16 @@ class Player(pygame.sprite.Sprite):
         current_speed = PLAYER_SPEED + self.speed_boost
         current_jump = JUMP_STRENGTH + self.jump_boost
 
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             dx = -current_speed
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             dx = current_speed
 
         if self.on_ground and self.current_platform:
             if self.current_platform.move_dist > 0:
                 dx += self.current_platform.speed * self.current_platform.direction
 
-        if keys[pygame.K_SPACE] and self.on_ground:
+        if (keys[pygame.K_w] or keys[pygame.K_SPACE] or keys[pygame.K_UP]) and self.on_ground:
             self.velocity_y = current_jump
             self.on_ground = False
             self.current_platform = None
