@@ -16,9 +16,9 @@ def load_level_data(level_num):
                 background_img, (SCREEN_WIDTH, SCREEN_HEIGHT))
         except Exception:
             background_img = None
-            
+
     # Calculate Level Width: Find the rightmost edge of all platforms and the goal
-    level_width = SCREEN_WIDTH # Default minimum width
+    level_width = SCREEN_WIDTH  # Default minimum width
     all_sprites = list(platforms) + list(enemies) + [goal]
     if all_sprites:
         # Find the maximum x-coordinate (right edge)
@@ -36,7 +36,17 @@ def main():
         pygame.mixer.music.load("music/background.mp3")
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
+        # one-shot death sound (optional)
+        death_sfx = None
+        try:
+            death_sfx = pygame.mixer.Sound("music/death.wav")
+        except Exception:
+            try:
+                death_sfx = pygame.mixer.Sound("assets/death.wav")
+            except Exception:
+                death_sfx = None
     except Exception:
+        death_sfx = None
         pass
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Merging Mario - Modular System")
@@ -75,6 +85,10 @@ def main():
                             platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                 current_level)
                             camera_x = 0
+                            try:
+                                pygame.mixer.music.unpause()
+                            except Exception:
+                                pass
                             game_state = "PLAYING"
 
                         elif game_state == "GAME_OVER":
@@ -83,6 +97,10 @@ def main():
                             platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                 current_level)
                             camera_x = 0
+                            try:
+                                pygame.mixer.music.unpause()
+                            except Exception:
+                                pass
                             game_state = "PLAYING"
 
                         elif game_state == "LEVEL_COMPLETE":
@@ -95,6 +113,10 @@ def main():
                                 platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                     current_level)
                                 camera_x = 0
+                                try:
+                                    pygame.mixer.music.unpause()
+                                except Exception:
+                                    pass
                                 game_state = "PLAYING"
                     elif event.key == pygame.K_q and game_state == "GAME_WIN":
                         running = False
@@ -104,31 +126,31 @@ def main():
 
             platforms.update()
             player.update(keys, platforms)
-            
+
             # --- NEW: World Boundary Check (Clamping Player Position) ---
             # 1. Left Boundary (World X = 0)
             if player.rect.left < 0:
                 player.rect.left = 0
-                
+
             # 2. Right Boundary (World X = level_width)
             if player.rect.right > level_width:
                 player.rect.right = level_width
 
-
             # --- Camera Logic Updated to respect Level Width ---
             target_camera_x = player.rect.centerx - SCREEN_WIDTH // 2
-            
+
             # Clamp target_camera_x to prevent showing areas left of the start (0)
             if target_camera_x < 0:
                 target_camera_x = 0
-            
+
             # Clamp the camera to the maximum possible right position
             max_camera_x = level_width - SCREEN_WIDTH
-            if max_camera_x < 0: max_camera_x = 0 # If level is smaller than screen
-            
+            if max_camera_x < 0:
+                max_camera_x = 0  # If level is smaller than screen
+
             if target_camera_x > max_camera_x:
                 target_camera_x = max_camera_x
-                
+
             camera_x += (target_camera_x - camera_x) * 0.1
 
             for enemy in enemies:
@@ -156,6 +178,17 @@ def main():
                 game_state = "LEVEL_COMPLETE"
 
             if not player.is_alive:
+                # play death sound if available, then go to GAME_OVER
+                try:
+                    if death_sfx:
+                        death_sfx.play()
+                except Exception:
+                    pass
+                # pause background music on death
+                try:
+                    pygame.mixer.music.pause()
+                except Exception:
+                    pass
                 game_state = "GAME_OVER"
 
         if game_state == "MENU":
