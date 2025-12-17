@@ -37,9 +37,11 @@ def main():
         pygame.mixer.music.load("music/background.mp3")
         pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
-        # one-shot death sound (optional) and jump sound
+        # one-shot death sound (optional), jump sound and goal sound
         death_sfx = None
         jump_sfx = None
+        goal_sfx = None
+        coin_sfx = None
         try:
             death_sfx = pygame.mixer.Sound("music/death.wav")
         except Exception:
@@ -54,6 +56,33 @@ def main():
                 jump_sfx = pygame.mixer.Sound("assets/jump.wav")
             except Exception:
                 jump_sfx = None
+        try:
+            # prefer an mp3 goal music, fallback to wav in assets
+            try:
+                goal_sfx = pygame.mixer.Sound("music/goal.mp3")
+            except Exception:
+                try:
+                    goal_sfx = pygame.mixer.Sound("music/goal.wav")
+                except Exception:
+                    try:
+                        goal_sfx = pygame.mixer.Sound("assets/goal.mp3")
+                    except Exception:
+                        try:
+                            goal_sfx = pygame.mixer.Sound("assets/goal.wav")
+                        except Exception:
+                            goal_sfx = None
+        except Exception:
+            goal_sfx = None
+        try:
+            # coin pickup sound (prefer mp3 then wav)
+            for fname in ("music/coin.mp3", "music/coin.wav", "assets/coin.mp3", "assets/coin.wav"):
+                try:
+                    coin_sfx = pygame.mixer.Sound(fname)
+                    break
+                except Exception:
+                    continue
+        except Exception:
+            coin_sfx = None
     except Exception:
         death_sfx = None
         pass
@@ -188,10 +217,24 @@ def main():
 
             hit_items = pygame.sprite.spritecollide(player, items, True)
             for item in hit_items:
-                player.merge_with_item(item.type)
+                t = getattr(item, 'type', None)
+                player.merge_with_item(t)
+                # play coin sound when collecting a coin
+                try:
+                    if t == 'coin' and coin_sfx:
+                        coin_sfx.play()
+                except Exception:
+                    pass
                 item.kill()
 
             if player.rect.colliderect(goal.rect):
+                # play once when first reaching the goal
+                if game_state != "LEVEL_COMPLETE":
+                    try:
+                        if goal_sfx:
+                            goal_sfx.play()
+                    except Exception:
+                        pass
                 game_state = "LEVEL_COMPLETE"
 
             if not player.is_alive:

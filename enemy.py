@@ -156,7 +156,6 @@ class Enemy(pygame.sprite.Sprite):
                 {'x': px, 'y': py, 'vx': vx, 'vy': vy, 'life': life, 'size': size, 'color': color})
 
 
-
 class FlyingEnemy(Enemy):
     """A flying enemy that uses assets/flyer.png and bobs vertically while patrolling."""
 
@@ -171,7 +170,8 @@ class FlyingEnemy(Enemy):
                 img = pygame.transform.scale(img, (36, 24))
                 # If it's a JPG/JPEG, remove background by sampling corner color
                 if fname.lower().endswith(('.jpg', '.jpeg')):
-                    img = _remove_bg_by_color(img, sample_pos=(0, 0), thresh=60)
+                    img = _remove_bg_by_color(
+                        img, sample_pos=(0, 0), thresh=60)
                 else:
                     img = img.convert_alpha()
                 self.base_image = img
