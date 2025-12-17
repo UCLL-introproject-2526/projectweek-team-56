@@ -3,6 +3,7 @@ import random
 import math
 from settings import *
 
+
 DARK_BLUE = (0, 40, 180)
 
 
