@@ -3,6 +3,9 @@ import random
 import math
 from settings import *
 
+# cached enemy death sound (loaded on first use)
+_death_sfx = None
+
 
 def _remove_bg_by_color(surface, sample_pos=(0, 0), thresh=60):
     """Return a copy of `surface` with pixels similar to the sampled color made transparent.
@@ -123,6 +126,23 @@ class Enemy(pygame.sprite.Sprite):
         self.death_started = True
         self.death_timer = 0
         self.particles = []
+        # play enemy death sound (load lazily)
+        global _death_sfx
+        try:
+            if _death_sfx is None:
+                for fname in ("music/enemy_death.mp3", "music/enemy_death.wav", "music/death.wav", "assets/death.wav"):
+                    try:
+                        _death_sfx = pygame.mixer.Sound(fname)
+                        break
+                    except Exception:
+                        continue
+            if _death_sfx:
+                try:
+                    _death_sfx.play()
+                except Exception:
+                    pass
+        except Exception:
+            pass
         num = 30
         for _ in range(num):
             px = random.uniform(self.rect.left, self.rect.right)
