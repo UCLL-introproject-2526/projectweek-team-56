@@ -104,8 +104,8 @@ def main():
             for e in enemies: e.draw(screen, camera_x)
             goal.draw(screen, camera_x)
             
-            if player.is_alive: 
-                player.draw(screen, camera_x)
+            # Always draw the player so death animation can play when dead
+            player.draw(screen, camera_x)
 
             if game_state == "GAME_OVER":
                 text = font.render("DIED! Press 'R' to Restart", True, BRICK_RED)

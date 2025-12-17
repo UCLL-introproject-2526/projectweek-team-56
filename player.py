@@ -1,4 +1,5 @@
 import pygame
+import random
 from settings import *
 
 # Slightly darker blue for visibility against light backgrounds
@@ -23,6 +24,11 @@ class Player(pygame.sprite.Sprite):
         self.speed_boost = 0
         self.jump_boost = 0
         self.current_platform = None
+        # Death animation state
+        self.death_timer = 0
+        self.death_duration = 60
+        self.death_started = False
+        self.particles = []
 
     def update(self, keys, platforms):
         dx = 0
@@ -68,6 +74,41 @@ class Player(pygame.sprite.Sprite):
         if self.rect.y > SCREEN_HEIGHT + 100:
             self.is_alive = False
 
+        # start or update death particle animation when dead
+        if not self.is_alive:
+            if not self.death_started:
+                # initialize particles once at death
+                self.death_started = True
+                self.death_timer = 0
+                self.particles = []
+                max_life = 80
+                num = 120
+                for _ in range(num):
+                    px = random.uniform(self.rect.left, self.rect.right)
+                    py = random.uniform(self.rect.top, self.rect.bottom)
+                    vx = random.uniform(-4.0, 4.0)
+                    vy = random.uniform(-6.0, -1.0)
+                    life = random.randint(40, max_life)
+                    size = random.randint(2, 4)
+                    palette = [BRICK_RED, WHITE]
+                    if getattr(self, 'speed_boost', 0) > 0:
+                        palette.append(DARK_BLUE)
+                    if getattr(self, 'jump_boost', 0) != 0:
+                        palette.append(ITEM_GOLD)
+                    color = random.choice(palette)
+                    self.particles.append({'x': px, 'y': py, 'vx': vx, 'vy': vy, 'life': life, 'max_life': life, 'size': size, 'color': color})
+            else:
+                self.death_timer += 1
+                # update particles
+                for p in self.particles[:]:
+                    p['vy'] += GRAVITY * 0.4
+                    p['x'] += p['vx']
+                    p['y'] += p['vy']
+                    p['vx'] *= 0.99
+                    p['life'] -= 1
+                    if p['life'] <= 0:
+                        self.particles.remove(p)
+
     def merge_with_item(self, item_type):
         if item_type == "speed":
             self.speed_boost = 5
@@ -81,6 +122,47 @@ class Player(pygame.sprite.Sprite):
     def draw(self, surface, camera_x):
         draw_x = self.rect.x - camera_x
         draw_y = self.rect.y
+        # If player has died, draw particles and advance death animation
+        if not self.is_alive:
+            prog = min(1.0, self.death_timer / max(1, self.death_duration))
+            # draw particles (they were created in update())
+            for p in self.particles:
+                life_ratio = max(0.0, p['life'] / max(1, p['max_life']))
+                a = int(255 * life_ratio)
+                s = max(1, int(p['size']))
+                surf = pygame.Surface((s * 2, s * 2), pygame.SRCALPHA)
+                col = (*p['color'], a)
+                pygame.draw.circle(surf, col, (s, s), s)
+                surface.blit(surf, (p['x'] - camera_x - s, p['y'] - s))
+
+            # compute transformed image (scale down, rotate, fade out, float up)
+            w, h = self.rect.size
+            scale = max(0.2, 1.0 - 0.8 * prog)
+            new_w = max(1, int(w * scale))
+            new_h = max(1, int(h * scale))
+            img = pygame.transform.smoothscale(self.image, (new_w, new_h))
+            angle = prog * 360
+            img = pygame.transform.rotate(img, angle)
+            alpha = int(255 * (1.0 - prog))
+            img.set_alpha(alpha)
+            # draw faded glows behind dying player (fade with prog)
+            glow_fade = int(200 * (1.0 - prog))
+            if getattr(self, 'speed_boost', 0) > 0 and glow_fade > 0:
+                gw, gh = img.get_size()
+                glow = pygame.Surface((gw + 40, gh + 40), pygame.SRCALPHA)
+                pygame.draw.ellipse(glow, (*DARK_BLUE, glow_fade), glow.get_rect())
+                surface.blit(glow, (draw_x - (gw+40-w)//2 - 20, draw_y - (gh+40-h)//2 - 20), special_flags=pygame.BLEND_ADD)
+            if getattr(self, 'jump_boost', 0) != 0 and glow_fade > 0:
+                gw, gh = img.get_size()
+                glow2 = pygame.Surface((gw + 46, gh + 46), pygame.SRCALPHA)
+                pygame.draw.ellipse(glow2, (*ITEM_GOLD, int(glow_fade*0.9)), glow2.get_rect())
+                surface.blit(glow2, (draw_x - (gw+46-w)//2 - 23, draw_y - (gh+46-h)//2 - 23), special_flags=pygame.BLEND_ADD)
+            # position adjusted to float up as it fades
+            float_up = int(40 * prog)
+            img_x = draw_x + (w - img.get_width()) // 2
+            img_y = draw_y - float_up + (h - img.get_height()) // 2
+            surface.blit(img, (img_x, img_y))
+            return
         # Strong layered blue glow for speed boost (use darker tint for contrast)
         if getattr(self, 'speed_boost', 0) > 0:
             w, h = self.rect.size
