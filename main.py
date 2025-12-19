@@ -94,8 +94,8 @@ def main():
 
     current_level = 1
     player = Player(50, SCREEN_HEIGHT - 150)
-    # Track total player deaths during this run
     death_count = 0
+    need_coins_timer = 0
     platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
         current_level)
 
@@ -220,14 +220,16 @@ def main():
                 item.kill()
 
             if player.rect.colliderect(goal.rect):
-
-                if game_state != "LEVEL_COMPLETE":
-                    try:
-                        if goal_sfx:
-                            goal_sfx.play()
-                    except Exception:
-                        pass
-                game_state = "LEVEL_COMPLETE"
+                if getattr(player, 'gold', 0) >= 3:
+                    if game_state != "LEVEL_COMPLETE":
+                        try:
+                            if goal_sfx:
+                                goal_sfx.play()
+                        except Exception:
+                            pass
+                    game_state = "LEVEL_COMPLETE"
+                else:
+                    need_coins_timer = 120
 
             if not player.is_alive:
 
@@ -361,7 +363,6 @@ def main():
                     pass
 
             try:
-                # Show deaths counter below Gold
                 death_surf = render_text_with_outline(
                     font, f"Deaths: {death_count}", WHITE, outline_color=BLACK, outline_width=1)
                 screen.blit(death_surf, (10, 90))
@@ -372,6 +373,18 @@ def main():
                     screen.blit(death_text, (10, 90))
                 except Exception:
                     pass
+
+            if need_coins_timer > 0:
+                try:
+                    msg = render_text_with_outline(font, "Need 3 coins to finish level!", BRICK_RED, outline_color=BLACK, outline_width=1)
+                    screen.blit(msg, msg.get_rect(center=(SCREEN_WIDTH//2, SCREEN_HEIGHT//2 - 60)))
+                except Exception:
+                    try:
+                        msg2 = font.render("Need 3 coins to finish level!", True, BRICK_RED)
+                        screen.blit(msg2, (SCREEN_WIDTH//2 - msg2.get_width()//2, SCREEN_HEIGHT//2 - 60))
+                    except Exception:
+                        pass
+                need_coins_timer -= 1
 
         pygame.display.update()
         clock.tick(FPS)
