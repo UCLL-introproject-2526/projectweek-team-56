@@ -3,6 +3,7 @@ import sys
 from settings import *
 from player import Player
 from levels import create_level
+from enemy import FlyingEnemy
 from menu import draw_menu, handle_menu_events
 from text_utils import render_text_with_outline
 
@@ -40,6 +41,7 @@ def main():
         jump_sfx = None
         goal_sfx = None
         coin_sfx = None
+        fly_death_sfx = None
         try:
             death_sfx = pygame.mixer.Sound("music/death.wav")
         except Exception:
@@ -81,6 +83,15 @@ def main():
                     continue
         except Exception:
             coin_sfx = None
+        try:
+            for fname in ("music/fly_death.mp3", "music/fly_death.wav", "assets/fly_death.mp3", "assets/fly_death.wav"):
+                try:
+                    fly_death_sfx = pygame.mixer.Sound(fname)
+                    break
+                except Exception:
+                    continue
+        except Exception:
+            fly_death_sfx = None
     except Exception:
         death_sfx = None
         pass
@@ -145,6 +156,7 @@ def main():
                             else:
                                 current_level += 1
                                 player = Player(50, SCREEN_HEIGHT - 150)
+                                player.death_from_flying = False
 
                                 platforms, enemies, items, goal, background_img, bg_file, level_width = load_level_data(
                                     current_level)
@@ -205,6 +217,7 @@ def main():
                         enemy.kill()
                     player.velocity_y = -12
                 else:
+                    player.death_from_flying = isinstance(enemy, FlyingEnemy)
                     player.is_alive = False
 
             hit_items = pygame.sprite.spritecollide(player, items, True)
@@ -232,14 +245,14 @@ def main():
                     need_coins_timer = 120
 
             if not player.is_alive:
-
                 try:
-                    if death_sfx:
+                    if getattr(player, 'death_from_flying', False) and fly_death_sfx:
+                        fly_death_sfx.play()
+                    elif death_sfx:
                         death_sfx.play()
                 except Exception:
                     pass
 
-                # increment death counter
                 try:
                     death_count += 1
                 except Exception:
